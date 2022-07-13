@@ -18,11 +18,11 @@ public class ArrayStorage {
 
     public void save(Resume r) {
         if (size < 10000) {
-            if (checkPresent(r.uuid) == -1) {
+            if (checkPresent(r.getUuid()) == -1) {
                 storage[size] = r;
                 size++;
             } else {
-                System.out.printf("Резюме %s уже присутствует в базе данных%n", r.uuid);
+                System.out.printf("Резюме %s уже присутствует в базе данных%n", r.getUuid());
             }
         } else {
             System.out.println("База резюме переполнена, запись невозможна");
@@ -47,7 +47,7 @@ public class ArrayStorage {
     }
 
     public void update(Resume resume) {
-        int index = checkPresentAndPrint(resume.uuid);
+        int index = checkPresentAndPrint(resume.getUuid());
         if (index != -1) {
             storage[index] = resume;
         }
@@ -66,7 +66,7 @@ public class ArrayStorage {
 
     private int checkPresent(String uuid) {
         for (int i = 0; i < size; i++) {
-            if (storage[i].uuid.equals(uuid)) {
+            if (storage[i].getUuid().equals(uuid)) {
                 return i;
             }
         }
