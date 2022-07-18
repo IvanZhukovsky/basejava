@@ -4,25 +4,27 @@ import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
 
-/**
- * Array based storage for Resumes
- */
-public class ArrayStorage extends AbstractArrayStorage {
+public class SortedArrayStorage extends AbstractArrayStorage{
 
+    //protected Resume[] sortedArray = Arrays.copyOf(storage, STORAGE_LIMIT);
+
+    @Override
     public void clear() {
         Arrays.fill(storage, 0, size, null);
         size = 0;
     }
 
-    public void update(Resume resume) {
-        int index = getIndex(resume.getUuid());
+    @Override
+    public void update(Resume r) {
+        int index = getIndex(r.getUuid());
         if (index == -1) {
-            System.out.printf("Резюме %s отсуствует в базе данных%n", resume.getUuid());
+            System.out.printf("Резюме %s отсуствует в базе данных%n", r.getUuid());
         } else {
-            storage[index] = resume;
+            storage[index] = r;
         }
     }
 
+    @Override
     public void save(Resume r) {
         if (size >= STORAGE_LIMIT) {
             System.out.println("База резюме переполнена, запись невозможна");
@@ -31,9 +33,10 @@ public class ArrayStorage extends AbstractArrayStorage {
         } else {
             storage[size] = r;
             size++;
-        } 
+        }
     }
 
+    @Override
     public void delete(String uuid) {
         int index = getIndex(uuid);
         if (index == -1) {
@@ -45,16 +48,26 @@ public class ArrayStorage extends AbstractArrayStorage {
         }
     }
 
+    @Override
     public Resume[] getAll() {
+        sortArray();
         return Arrays.copyOf(storage, size);
     }
 
+    @Override
     protected int getIndex(String uuid) {
-        for (int i = 0; i < size; i++) {
-            if (storage[i].getUuid().equals(uuid)) {
-                return i;
-            }
+        Resume searchKey = new Resume();
+        searchKey.setUuid(uuid);
+        sortArray();
+        return Arrays.binarySearch(storage, 0, size, searchKey);
+    }
+
+    private void sortArray() {
+        for (int i = 1; i < size; i++) {
+            Resume buffer = storage[i];
+            int index = Arrays.binarySearch(storage, 0, i, buffer) * (-1) - 1;
+            System.arraycopy(storage, index, storage, index + 1, i - index);
+            storage[index] = buffer;
         }
-        return -1;
     }
 }
