@@ -43,7 +43,8 @@ public abstract class AbstractArrayStorage implements Storage {
 
     final public void delete(String uuid) {
         int index = getIndex(uuid);
-        if (index == -1) {
+        //if (index == -1) {
+        if (index < -0) {
             throw new NotExistStorageException(uuid);
             //System.out.printf("Резюме %s отсуствует в базе данных%n", uuid);
         } else {
