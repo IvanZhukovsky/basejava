@@ -15,7 +15,7 @@ public abstract class AbstractArrayStorageTest {
     protected static final Resume RESUME_4 = new Resume("uuid4");
     protected static final String UUID_NOT_EXIST = "uuid5";
     protected static final int STORAGE_LIMIT = 10000;
-    protected Storage storage;
+    protected final Storage storage;
 
     public AbstractArrayStorageTest(Storage storage) {
         this.storage = storage;
@@ -34,13 +34,14 @@ public abstract class AbstractArrayStorageTest {
         //Проверяем произошло ли обнуление счетчика заполненых элементов
         storage.clear();
         assertSize(0);
-        Assert.assertEquals(new Resume[0], storage.getAll());
+        Assert.assertArrayEquals(new Resume[0], storage.getAll());
     }
 
     @Test
     public void update() {
         storage.update(RESUME_2);
-        Assert.assertSame(RESUME_2, storage.getAll()[1]);
+        Assert.assertSame(RESUME_2, storage.get(RESUME_2.getUuid()));
+        assertGet(RESUME_2);
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -89,10 +90,7 @@ public abstract class AbstractArrayStorageTest {
 
     @Test
     public void getAll() {
-        Resume[] expected = new Resume[3];
-        expected[0] = RESUME_1;
-        expected[1] = RESUME_2;
-        expected[2] = RESUME_3;
+        Resume[] expected = {RESUME_1, RESUME_2, RESUME_3};
         Assert.assertArrayEquals(expected, storage.getAll());
     }
 
@@ -109,7 +107,7 @@ public abstract class AbstractArrayStorageTest {
     }
 
     @Test(expected = NotExistStorageException.class)
-    public void getNotExist() throws Exception {
+    public void getNotExist() {
         storage.get(UUID_NOT_EXIST);
     }
 
