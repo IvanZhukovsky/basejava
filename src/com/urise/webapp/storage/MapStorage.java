@@ -3,7 +3,6 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class MapStorage extends AbstractStorage {
@@ -53,9 +52,6 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     public Resume[] getAll() {
-        Resume[] resumes = new Resume[0];
-       resumes = Arrays.copyOf(storage.values().toArray(resumes), size());
-       for (Resume resume: resumes) System.out.println(resume.getUuid());
         return Arrays.copyOf(storage.values().toArray(new Resume[0]), size());
     }
 
