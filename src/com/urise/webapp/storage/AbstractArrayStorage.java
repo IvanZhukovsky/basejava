@@ -9,7 +9,10 @@ import java.util.Arrays;
 
 public abstract class AbstractArrayStorage extends AbstractStorage {
 
+    protected static final int STORAGE_LIMIT = 10000;
+    protected int size = 0;
     protected Resume[] storage = new Resume[STORAGE_LIMIT];
+
 
     final public void clear() {
         Arrays.fill(storage, 0, size, null);
@@ -24,27 +27,33 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         return size;
     }
 
-    final public Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        }
+    @Override
+    protected Resume doGet(Object searchKey) {
+        int index = (int) searchKey;
         return storage[index];
     }
 
     @Override
-    protected void updateElement(int index, Resume resume) {
-        storage[index] = resume;
+    protected void doSave(Object searchKey, Resume r) {
+        if (size >= STORAGE_LIMIT) {
+            throw new StorageException("Storage overflow", r.getUuid());
+        } else {
+            storage[getIndexForSave(r)] = r;
+            size++;
+        }
     }
 
     @Override
-    protected void addElement(Resume r) {
-        storage[getIndexForSave(r)] = r;
+    protected void doUpdate(Object searchKey, Resume r) {
+        int index = (int) searchKey;
+        storage[index] = r;
     }
 
     @Override
-    protected void deleteElement(int index) {
+    protected void doDelete(Object searchKey) {
+        int index = (int) searchKey;
         fillAfterDelete(index);
+        size--;
     }
 
     protected abstract int getIndexForSave(Resume r);

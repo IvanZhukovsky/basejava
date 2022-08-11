@@ -2,52 +2,59 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
-import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
 public abstract class AbstractStorage implements Storage {
-    protected static final int STORAGE_LIMIT = 10000;
-    protected int size = 0;
+
+    protected abstract boolean isExist(Object key);
+
+    private Object getExistingSearchKey(String uuid) {
+        Object searchKey = getSearchKey(uuid);
+        if (!isExist(searchKey)) {
+            throw new NotExistStorageException(uuid);
+        }
+        return searchKey;
+    }
+
+    private Object getNotExistingSearchKey(String uuid) {
+        Object searchKey = getSearchKey(uuid);
+        if (isExist(searchKey)) {
+            throw new ExistStorageException(uuid);
+        }
+        return searchKey;
+    }
+
+    @Override
+    final public Resume get(String uuid) {
+        Object searchKey = getExistingSearchKey(uuid);
+        return doGet(searchKey);
+    }
+
+    @Override
+    final public void save(Resume r) {
+        Object searchKey = getNotExistingSearchKey(r.getUuid());
+        doSave(searchKey, r);
+    }
 
     @Override
     final public void update(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (index == -1) {
-            throw new NotExistStorageException(r.getUuid());
-        } else {
-            updateElement(index, r);
-        }
+        Object searchKey = getExistingSearchKey(r.getUuid());
+        doUpdate(searchKey, r);
     }
 
     @Override
-    public void save(Resume r) {
-        if (size >= STORAGE_LIMIT) {
-            throw new StorageException("Storage overflow", r.getUuid());
-        } else if (getIndex(r.getUuid()) >= 0) {
-            throw new ExistStorageException(r.getUuid());
-        } else {
-            addElement(r);
-            size++;
-        }
+    final public void delete(String uuid) {
+        Object searchKey = getExistingSearchKey(uuid);
+        doDelete(searchKey);
     }
 
-    @Override
-    public void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        } else {
-            deleteElement(index);
-            size--;
-        }
-    }
+    protected abstract Object getSearchKey(String uuid);
 
-    protected abstract int getIndex(String uuid);
+    protected abstract Resume doGet(Object searchKey);
 
-    protected abstract void updateElement(int index, Resume r);
+    protected abstract void doSave(Object searchKey, Resume r);
 
-    protected abstract void addElement(Resume r);
+    protected abstract void doUpdate(Object searchKey, Resume r);
 
-    protected abstract void deleteElement(int index);
-
+    protected abstract void doDelete(Object searchKey);
 }

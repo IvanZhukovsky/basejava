@@ -1,6 +1,5 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
 
 import java.util.ArrayList;
@@ -11,23 +10,54 @@ public class ListStorage extends AbstractStorage {
     protected ArrayList<Resume> storage = new ArrayList<>();
 
     @Override
-    final public void clear() {
-        storage.clear();
-        size = 0;
+    protected boolean isExist(Object key) {
+        if ((int) key < 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
-    final public Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
+    protected Object getSearchKey(String uuid) {
+        for (int i = 0; i < storage.size(); i++) {
+            if (storage.get(i).getUuid().equals(uuid)) {
+                return i;
+            }
         }
-        return storage.get(getIndex(uuid));
+        return -1;
+    }
+
+    @Override
+    protected Resume doGet(Object searchKey) {
+        int index = (int) searchKey;
+        return storage.get(index);
+    }
+
+    @Override
+    protected void doSave(Object searchKey, Resume r) {
+        storage.add(r);
+    }
+
+    @Override
+    protected void doUpdate(Object searchKey, Resume r) {
+        int index = (int) searchKey;
+        storage.add(index, r);
+    }
+
+    @Override
+    protected void doDelete(Object searchKey) {
+        int index = (int) searchKey;
+        storage.remove(index);
+    }
+
+    @Override
+    final public void clear() {
+        storage.clear();
     }
 
     @Override
     final public Resume[] getAll() {
-        Resume[] resumes = new Resume[10000];
+        Resume[] resumes = new Resume[0];
         return Arrays.copyOf(storage.toArray(resumes), size());
     }
 
@@ -38,30 +68,5 @@ public class ListStorage extends AbstractStorage {
         } else {
             return storage.size();
         }
-    }
-
-    @Override
-    protected int getIndex(String uuid) {
-        for (int i = 0; i < storage.size(); i++) {
-            if (storage.get(i).getUuid().equals(uuid)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    @Override
-    protected void updateElement(int index, Resume r) {
-        storage.add(index, r);
-    }
-
-    @Override
-    protected void addElement(Resume r) {
-        storage.add(r);
-    }
-
-    @Override
-    protected void deleteElement(int index) {
-        storage.remove(index);
     }
 }
