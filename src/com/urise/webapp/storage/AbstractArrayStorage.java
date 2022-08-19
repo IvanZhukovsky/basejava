@@ -56,6 +56,11 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         size--;
     }
 
+    @Override
+    protected boolean isExist(Object key) {
+        return (int) key >= 0;
+    }
+
     protected abstract int getIndexForSave(Resume r);
 
     protected abstract void fillAfterDelete(int index);

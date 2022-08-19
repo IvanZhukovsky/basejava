@@ -3,31 +3,29 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class MapStorage extends AbstractStorage {
 
-    TreeMap<String, Resume> storage = new TreeMap<>();
+    Map<String, Resume> storage = new TreeMap<>();
 
     @Override
     protected boolean isExist(Object key) {
-        if (key != null) {
-            return true;
-        }
-        return false;
+        return storage.containsKey(key);
     }
 
     @Override
     protected Object getSearchKey(String uuid) {
-        if (storage.containsKey(uuid)) {
-            return uuid;
-        }
-        return null;
+//        if (storage.containsKey(uuid)) {
+//            return uuid;
+//        }
+        return uuid;
     }
 
     @Override
     protected Resume doGet(Object searchKey) {
-        return storage.get(searchKey);
+        return storage.get((String) searchKey);
     }
 
     @Override
@@ -42,7 +40,7 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     protected void doDelete(Object searchKey) {
-        storage.remove(searchKey);
+        storage.remove((String) searchKey);
     }
 
     @Override
@@ -57,10 +55,6 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     public int size() {
-        if (storage == null) {
-            return 0;
-        } else {
-            return storage.size();
-        }
+        return storage.size();
     }
 }
