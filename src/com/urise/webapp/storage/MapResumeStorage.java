@@ -2,30 +2,26 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.model.Resume;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
-public class MapStorage extends AbstractStorage {
+public class MapResumeStorage extends AbstractStorage {
 
     Map<String, Resume> storage = new TreeMap<>();
 
     @Override
     protected boolean isExist(Object key) {
-        return storage.containsKey(key);
+        return storage.containsValue(key);
     }
 
     @Override
     protected Object getSearchKey(String uuid) {
-//        if (storage.containsKey(uuid)) {
-//            return uuid;
-//        }
-        return uuid;
+        return storage.get(uuid);
     }
 
     @Override
     protected Resume doGet(Object searchKey) {
-        return storage.get((String) searchKey);
+        Resume resume = (Resume) searchKey;
+        return storage.get(resume.getUuid());
     }
 
     @Override
@@ -35,12 +31,14 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     protected void doUpdate(Object searchKey, Resume r) {
-        storage.put((String) searchKey, r);
+        Resume resume = (Resume) searchKey;
+        storage.put(resume.getUuid(), r);
     }
 
     @Override
     protected void doDelete(Object searchKey) {
-        storage.remove((String) searchKey);
+        Resume resume = (Resume) searchKey;
+        storage.remove(resume.getUuid());
     }
 
     @Override
@@ -49,12 +47,17 @@ public class MapStorage extends AbstractStorage {
     }
 
     @Override
-    public Resume[] getAll() {
-        return Arrays.copyOf(storage.values().toArray(new Resume[0]), size());
+    public List<Resume> getAllSorted() {
+        List<Resume> list = new ArrayList<>(storage.values());
+        Comparator<Resume> comparator = (a, b) -> a.getFullName().compareTo(b.getFullName());
+        list.sort(comparator.thenComparing((a,b) -> a.getUuid().compareTo(b.getUuid())));
+        return list;
     }
 
     @Override
     public int size() {
         return storage.size();
     }
+
+
 }
