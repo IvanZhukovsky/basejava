@@ -2,19 +2,17 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
-import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractArrayStorageTest {
     protected static final Resume RESUME_1 = new Resume("uuid1", "1");
-    protected static final Resume RESUME_2 = new Resume("uuid2", "2");
-    protected static final Resume RESUME_3 = new Resume("uuid3", "2");
+    protected static final Resume RESUME_2 = new Resume("uuid2", "1");
+    protected static final Resume RESUME_3 = new Resume("uuid3", "1");
     protected static final Resume RESUME_4 = new Resume("uuid4", "2");
     protected static final String UUID_NOT_EXIST = "uuid5";
     protected static final int STORAGE_LIMIT = 10000;
@@ -58,19 +56,6 @@ public abstract class AbstractArrayStorageTest {
         assertGet(RESUME_4);
         assertSize(4);
     }
-
-//    @Test(expected = StorageException.class)
-//    public void StorageOverflow() {
-//        storage.clear();
-//        try {
-//            for (int i = 0; i < STORAGE_LIMIT; i++) {
-//                storage.save(new Resume());
-//            }
-//        } catch (StorageException e) {
-//            Assert.fail("Переполнение произошло раньше времени");
-//        }
-//        storage.save(new Resume());
-//    }
 
     @Test(expected = ExistStorageException.class)
     public void saveExist() {

@@ -6,6 +6,7 @@ import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractArrayStorage extends AbstractStorage {
 
@@ -50,6 +51,11 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         int index = (int) searchKey;
         fillAfterDelete(index);
         size--;
+    }
+
+    @Override
+    protected List doList() {
+        return Arrays.asList(Arrays.copyOf(storage, size));
     }
 
     @Override

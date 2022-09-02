@@ -3,8 +3,6 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 public class SortedArrayStorage extends AbstractArrayStorage{
 
@@ -26,9 +24,5 @@ public class SortedArrayStorage extends AbstractArrayStorage{
         System.arraycopy(storage, index + 1, storage, index, size - index);
     }
 
-    @Override
-    public List<Resume> getAllSorted() {
-        List<Resume> list = Arrays.asList(Arrays.copyOf(storage, size));
-        return list;
-    }
+
 }

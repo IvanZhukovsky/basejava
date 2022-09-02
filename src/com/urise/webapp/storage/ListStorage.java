@@ -50,17 +50,13 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    final public void clear() {
-        storage.clear();
+    protected List doList() {
+        return storage;
     }
 
     @Override
-    final public List<Resume> getAllSorted() {
-        List<Resume> list = storage;
-        Comparator<Resume> comparator = (a,b) -> a.getFullName().compareTo(b.getFullName());
-        list.sort(comparator.thenComparing((a,b) -> a.getUuid().compareTo(b.getUuid())));
-        //list.sort(comparator);
-        return list;
+    final public void clear() {
+        storage.clear();
     }
 
     @Override
@@ -72,11 +68,4 @@ public class ListStorage extends AbstractStorage {
         }
     }
 
-    class FullNameComparator implements Comparator<Resume>{
-
-        public int compare(Resume a, Resume b){
-
-            return a.getFullName().compareTo(b.getFullName());
-        }
-    }
 }
