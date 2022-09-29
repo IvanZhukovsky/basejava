@@ -50,7 +50,7 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected List doList() {
+    protected List doCopyAll() {
         return storage;
     }
 
