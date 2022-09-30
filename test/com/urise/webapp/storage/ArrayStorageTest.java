@@ -10,19 +10,6 @@ public class ArrayStorageTest extends AbstractArrayStorageTest {
         super(new ArrayStorage());
     }
 
-    @Test(expected = StorageException.class)
-    public void StorageOverflow() {
-        storage.clear();
-        try {
-            for (int i = 0; i < STORAGE_LIMIT; i++) {
-                storage.save(new Resume());
-            }
-        } catch (StorageException e) {
-            Assert.fail("Переполнение произошло раньше времени");
-        }
-        storage.save(new Resume());
-    }
-
     @Test
     public void getIndexForSave() {
         storage.save(new Resume("uuid5","2"));
