@@ -3,7 +3,7 @@ package com.urise.webapp.model;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Period{
+public class Period {
     LocalDate beginDate;
     LocalDate endDate;
     String title;
