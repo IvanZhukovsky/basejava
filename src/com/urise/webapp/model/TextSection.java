@@ -2,11 +2,15 @@ package com.urise.webapp.model;
 
 import java.util.Objects;
 
-public class TextSection extends Section {
-    String content;
+public class TextSection extends AbstractSection {
+    private String content;
 
     public TextSection(String content) {
         this.content = content;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     @Override

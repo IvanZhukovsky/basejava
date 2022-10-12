@@ -163,7 +163,7 @@ public class ResumeTestData {
         organization = new Organization((ArrayList<Period>) periods.clone(), "Alcatel");
         experience.add(organization);
 
-        resume.setSection(SectionType.EXPERIENCE, new OrgSection(experience));
+        resume.setSection(SectionType.EXPERIENCE, new OrganizationSection(experience));
 
         ArrayList<Organization> educations = new ArrayList<>();
 
@@ -219,7 +219,7 @@ public class ResumeTestData {
                 "при МФТИ");
         educations.add(organization);
 
-        resume.setSection(SectionType.EDUCATION, new OrgSection(educations));
+        resume.setSection(SectionType.EDUCATION, new OrganizationSection(educations));
 
         showResume(resume);
     }

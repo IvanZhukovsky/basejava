@@ -3,18 +3,22 @@ package com.urise.webapp.model;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class OrgSection extends Section{
-    ArrayList<Organization> organizations = new ArrayList<>();
+public class OrganizationSection extends AbstractSection {
+    private ArrayList<Organization> organizations = new ArrayList<>();
 
-    public OrgSection(ArrayList<Organization> organizations) {
+    public OrganizationSection(ArrayList<Organization> organizations) {
         this.organizations = organizations;
+    }
+
+    public ArrayList<Organization> getOrganizations() {
+        return organizations;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrgSection that = (OrgSection) o;
+        OrganizationSection that = (OrganizationSection) o;
         return organizations.equals(that.organizations);
     }
 

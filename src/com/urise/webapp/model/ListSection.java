@@ -3,11 +3,15 @@ package com.urise.webapp.model;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ListSection extends Section{
-    ArrayList<String> content;
+public class ListSection extends AbstractSection {
+    private ArrayList<String> content;
 
     public ListSection(ArrayList<String> content) {
         this.content = content;
+    }
+
+    public ArrayList<String> getContent() {
+        return content;
     }
 
     @Override
@@ -25,10 +29,15 @@ public class ListSection extends Section{
 
     @Override
     public String toString() {
-        String items = "";
+
+        StringBuilder items = new StringBuilder();
         for (String item : content) {
-            items = items + item + "\n";
+            items.append(item + "\n");
         }
-        return items;
+//        String items = "";
+//        for (String item : content) {
+//            items = items + item + "\n";
+//        }
+        return items.toString();
     }
 }
