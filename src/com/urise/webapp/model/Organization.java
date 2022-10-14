@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Organization {
-    private ArrayList<Period> periods = new ArrayList<>();
+    private final ArrayList<Period> periods = new ArrayList<>();
     String link;
 
-    public Organization(ArrayList<Period> periods, String link) {
-        this.periods = periods;
+    public Organization(String link) {
+        //this.periods = periods;
         this.link = link;
     }
 

@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class OrganizationSection extends AbstractSection {
-    private ArrayList<Organization> organizations = new ArrayList<>();
-
-    public OrganizationSection(ArrayList<Organization> organizations) {
-        this.organizations = organizations;
-    }
+    private final ArrayList<Organization> organizations = new ArrayList<>();
 
     public ArrayList<Organization> getOrganizations() {
         return organizations;

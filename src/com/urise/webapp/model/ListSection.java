@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ListSection extends AbstractSection {
-    private ArrayList<String> content;
+    private final ArrayList<String> content;
 
     public ListSection(ArrayList<String> content) {
+        Objects.requireNonNull(content, "content must not be null");
         this.content = content;
     }
 
