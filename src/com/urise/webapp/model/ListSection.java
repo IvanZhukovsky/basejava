@@ -1,17 +1,24 @@
 package com.urise.webapp.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class ListSection extends AbstractSection {
-    private final ArrayList<String> content;
+    private final List<String> content;
+    private static final long serialVersionUID = 1L;
 
-    public ListSection(ArrayList<String> content) {
+    public ListSection(String... items) {
+        this(Arrays.asList(items));
+    }
+
+    public ListSection(List<String> content) {
         Objects.requireNonNull(content, "content must not be null");
         this.content = content;
     }
 
-    public ArrayList<String> getContent() {
+    public List<String> getContent() {
         return content;
     }
 

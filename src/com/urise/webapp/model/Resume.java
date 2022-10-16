@@ -1,12 +1,13 @@
 package com.urise.webapp.model;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Initial resume class
  */
-public class Resume implements Comparable<Resume>{
-
+public class Resume implements Comparable<Resume>, Serializable {
+    private static final long serialVersionUID = 1L;
     // Unique identifier
     private final String uuid;
     private final String fullName;
@@ -36,7 +37,7 @@ public class Resume implements Comparable<Resume>{
         return fullName;
     }
 
-    public void setContact(ContactType contactType, String textContact) {
+    public void addContact(ContactType contactType, String textContact) {
         contacts.put(contactType, textContact);
     }
 
@@ -44,7 +45,7 @@ public class Resume implements Comparable<Resume>{
         return contacts.get(contactType);
     }
 
-    public void setSection(SectionType sectionType, AbstractSection abstractSection) {
+    public void addSection(SectionType sectionType, AbstractSection abstractSection) {
         sections.put(sectionType, abstractSection);
     }
 
