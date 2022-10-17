@@ -12,8 +12,8 @@ public class ArrayStorageTest extends AbstractArrayStorageTest {
 
     @Test
     public void getIndexForSave() {
-        storage.save(new Resume("uuid5","2"));
-        Resume resume = new Resume("uuid4", "2");
+        storage.save(new Resume("uuid5","Name5"));
+        Resume resume = new Resume("uuid4", "Name4");
         storage.save(resume);
         Assert.assertEquals(resume, storage.getAllSorted().get(3));
     }

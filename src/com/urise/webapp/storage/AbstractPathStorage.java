@@ -105,4 +105,7 @@ public abstract class AbstractPathStorage extends AbstractStorage<Path> {
             throw new StorageException("listFiles error", directory.getFileName().toString());
         }
     }
+
+    protected abstract Resume doRead(InputStream io) throws IOException;
+    protected abstract void doWrite(Resume resume, OutputStream os) throws IOException;
 }

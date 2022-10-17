@@ -2,11 +2,10 @@ package com.urise.webapp.storage.IOStrategy;
 
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.storage.IOStrategy.IOStrategy;
 
 import java.io.*;
 
-public class SerializeStrategy implements IOStrategy {
+public class ObjectStreamSerializer implements StreamSerializer {
     @Override
     public Resume doRead(InputStream is) throws IOException {
         try (ObjectInputStream ois = new ObjectInputStream(is)) {

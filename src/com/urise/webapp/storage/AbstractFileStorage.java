@@ -94,4 +94,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         }
         return directory.listFiles();
     }
+
+    protected abstract Resume doRead(InputStream io) throws IOException;
+    protected abstract void doWrite(Resume resume, OutputStream os) throws IOException;
 }
