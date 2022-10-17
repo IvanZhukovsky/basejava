@@ -1,29 +1,15 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.exception.StorageException;
-import com.urise.webapp.model.Resume;
+import com.urise.webapp.storage.IOStrategy.IOStrategy;
 
 import java.io.*;
-import java.nio.file.Path;
 
 public class ObjectStreamStorage extends AbstractFileStorage {
 
-    protected ObjectStreamStorage(File directory) {
+    protected ObjectStreamStorage(File directory, IOStrategy ioStrategy) {
         super(directory);
-        writer = new SerializeWriteMethod();
-        reader = new SerializeReadMethod();
+        this.ioStrategy = ioStrategy;
     }
-
-    @Override
-    protected void doWrite(Resume resume, OutputStream os) throws IOException {
-        writer.write(resume, os);
-    }
-
-    @Override
-    protected Resume doRead(InputStream is) throws IOException {
-        return reader.read(is);
-    }
-
 }
 
 

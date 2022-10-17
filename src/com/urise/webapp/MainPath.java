@@ -16,6 +16,8 @@ public class MainPath {
 //            throw new RuntimeException(e);
 //        }
 
+        System.out.println(directory.resolve("ttt.doc"));
+
         List<Path> files;
 
         try {

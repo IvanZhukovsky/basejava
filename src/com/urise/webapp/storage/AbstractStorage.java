@@ -3,7 +3,11 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
+import com.urise.webapp.storage.IOStrategy.IOStrategy;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,8 +16,7 @@ public abstract class AbstractStorage<SK> implements Storage {
     private static final Comparator<Resume> comparator = Comparator.comparing(Resume::getFullName)
             .thenComparing(Resume::getUuid);
 
-    protected DoWriteMethod writer;
-    protected DoReadMethod reader;
+    protected IOStrategy ioStrategy;
 
     private SK getExistingSearchKey(String uuid) {
         SK searchKey = getSearchKey(uuid);
@@ -63,6 +66,14 @@ public abstract class AbstractStorage<SK> implements Storage {
         list.sort(comparator);
         return list;
     }
+
+    protected Resume doRead(InputStream io) throws IOException {
+        return ioStrategy.doRead(io);
+    };
+
+    protected void doWrite(Resume resume, OutputStream os) throws IOException {
+        ioStrategy.doWrite(resume, os);
+    };
 
     protected abstract boolean isExist(SK key);
 
