@@ -3,11 +3,7 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.storage.IOStrategy.StreamSerializer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
 
