@@ -109,7 +109,4 @@ public class PathStorage extends AbstractStorage<Path> {
     private String getFileName(Path path) {
         return path.getFileName().toString();
     }
-
-//    protected abstract Resume doRead(InputStream io) throws IOException;
-//    protected abstract void doWrite(Resume resume, OutputStream os) throws IOException;
 }

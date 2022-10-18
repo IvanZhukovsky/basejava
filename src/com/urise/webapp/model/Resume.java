@@ -1,21 +1,27 @@
 package com.urise.webapp.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.*;
 
 /**
  * Initial resume class
  */
+@XmlRootElement
 public class Resume implements Comparable<Resume>, Serializable {
     private static final long serialVersionUID = 1L;
     // Unique identifier
-    private final String uuid;
-    private final String fullName;
+    private  String uuid;
+    private  String fullName;
     private final Map<ContactType, String> contacts = new EnumMap<>(ContactType.class);
     private final Map<SectionType, AbstractSection> sections = new EnumMap<>(SectionType.class);
 
+
+//    public Resume() {
+//        this(UUID.randomUUID().toString(), "default name");
+//    }
     public Resume() {
-        this(UUID.randomUUID().toString(), "default name");
+        //this(UUID.randomUUID().toString(), "default name");
     }
 
     public Resume(String fullName) {

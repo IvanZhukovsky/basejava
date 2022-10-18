@@ -13,8 +13,11 @@ import static com.urise.webapp.util.DateUtil.NOW;
 
 public class Organization implements Serializable {
 
-    private final Link homePage;
-    private final List<Period> periods;
+    private Link homePage;
+    private List<Period> periods;
+
+    public Organization() {
+    }
 
     public Organization(String name, String url, Period... periods) {
         this(new Link(name, url), Arrays.asList(periods));
@@ -61,6 +64,9 @@ public class Organization implements Serializable {
         private String title;
         private String description;
         private static final long serialVersionUID = 1L;
+
+        public Period() {
+        }
 
         public Period(int startYear, Month startMonth, String title, String description) {
             this(DateUtil.of(startYear, startMonth), NOW, title, description);
