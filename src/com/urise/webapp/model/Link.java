@@ -1,8 +1,11 @@
 package com.urise.webapp.model;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+
 import java.io.Serializable;
 import java.util.Objects;
-
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Link implements Serializable {
     private String name;
     private String url;
@@ -29,18 +32,13 @@ public class Link implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Link link = (Link) o;
-
-        if (!Objects.equals(name, link.name)) return false;
-        return url.equals(link.url);
+        return name.equals(link.name) && Objects.equals(url, link.url);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + url.hashCode();
-        return result;
+        return Objects.hash(name, url);
     }
 
     @Override

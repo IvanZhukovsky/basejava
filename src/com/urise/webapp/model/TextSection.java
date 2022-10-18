@@ -1,7 +1,9 @@
 package com.urise.webapp.model;
 
-import java.util.Objects;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
+import java.util.Objects;
 public class TextSection extends AbstractSection {
     private String content;
     private static final long serialVersionUID = 1L;

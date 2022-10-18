@@ -1,6 +1,11 @@
 package com.urise.webapp.model;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.urise.webapp.util.DateUtil;
+import com.urise.webapp.util.LocalDateAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -10,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.urise.webapp.util.DateUtil.NOW;
-
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Organization implements Serializable {
 
     private Link homePage;
@@ -44,26 +49,23 @@ public class Organization implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Organization that = (Organization) o;
-
-        if (!homePage.equals(that.homePage)) return false;
-        return periods.equals(that.periods);
+        return Objects.equals(homePage, that.homePage) && periods.equals(that.periods);
     }
 
     @Override
     public int hashCode() {
-        int result = homePage.hashCode();
-        result = 31 * result + periods.hashCode();
-        return result;
+        return Objects.hash(homePage, periods);
     }
 
+    @XmlAccessorType (XmlAccessType.FIELD)
     public static class Period implements Serializable{
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate beginDate;
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate endDate;
         private String title;
         private String description;
-        private static final long serialVersionUID = 1L;
 
         public Period() {
         }
