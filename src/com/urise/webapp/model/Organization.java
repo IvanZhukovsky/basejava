@@ -3,10 +3,11 @@ package com.urise.webapp.model;
 import com.google.gson.annotations.JsonAdapter;
 import com.urise.webapp.util.DateUtil;
 import com.urise.webapp.util.LocalDateAdapter;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
@@ -35,6 +36,14 @@ public class Organization implements Serializable {
 
     public List<Period> getPeriods() {
         return periods;
+    }
+
+    public void setHomePage(Link homePage) {
+        this.homePage = homePage;
+    }
+
+    public Link getHomePage() {
+        return homePage;
     }
 
     @Override

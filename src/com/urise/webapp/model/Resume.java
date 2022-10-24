@@ -1,11 +1,11 @@
 package com.urise.webapp.model;
 
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
-import java.io.Serial;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.*;
 
@@ -13,9 +13,8 @@ import java.util.*;
  * Initial resume class
  */
 @XmlRootElement
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Resume implements Comparable<Resume>, Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
     // Unique identifier
     private  String uuid;
@@ -46,6 +45,14 @@ public class Resume implements Comparable<Resume>, Serializable {
         return fullName;
     }
 
+    public Map<ContactType, String> getContacts() {
+        return contacts;
+    }
+
+    public Map<SectionType, AbstractSection> getSections() {
+        return sections;
+    }
+
     public void addContact(ContactType contactType, String textContact) {
         contacts.put(contactType, textContact);
     }
@@ -58,9 +65,9 @@ public class Resume implements Comparable<Resume>, Serializable {
         sections.put(sectionType, abstractSection);
     }
 
-    public AbstractSection getSection(SectionType sectionType) {
-        return sections.get(sectionType);
-    }
+    //public AbstractSection getSection(SectionType sectionType) {
+//        return sections.get(sectionType);
+//    }
 
     @Override
     public boolean equals(Object o) {

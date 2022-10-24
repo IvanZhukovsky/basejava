@@ -226,10 +226,10 @@ public class ResumeTestData {
         }
 
         //отображение секций
-        for (SectionType sectionType : SectionType.values()) {
-            System.out.println(sectionType.getTitle());
-            System.out.println(resume.getSection(sectionType).toString());
-        }
+//        for (SectionType sectionType : SectionType.values()) {
+//            System.out.println(sectionType.getTitle());
+//            System.out.println(resume.getSection(sectionType).toString());
+//        }
     }
 
 
