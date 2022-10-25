@@ -33,17 +33,19 @@ public class DataStreamSerializer implements StreamSerializer {
 //                    case EXPERIENCE, EDUCATION -> writeOrganizationSection(dos, entry);
 //                }
 
-                //Запись TextSections
-                if (entry.getKey().equals(SectionType.OBJECTIVE) || entry.getKey().equals(SectionType.PERSONAL)) {
-                    writeTextSection(dos, entry);
-                }
-                //Запись ListSections
-                if (entry.getKey().equals(SectionType.ACHIEVEMENT) || entry.getKey().equals(SectionType.QUALIFICATIONS)) {
-                    writeListSection(dos, entry);
-                }
-                //Запись OrganizationsSections
-                if (entry.getKey().equals(SectionType.EXPERIENCE) || entry.getKey().equals((SectionType.EDUCATION))) {
-                    writeOrganizationSection(dos, entry);
+                switch (entry.getKey()) {
+                    case OBJECTIVE:
+                    case PERSONAL:
+                        writeTextSection(dos, entry);
+                        break;
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
+                        writeListSection(dos, entry);
+                        break;
+                    case EXPERIENCE:
+                    case EDUCATION:
+                        writeOrganizationSection(dos, entry);
+                        break;
                 }
             }
         }
