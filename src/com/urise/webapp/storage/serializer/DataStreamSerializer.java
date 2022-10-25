@@ -118,26 +118,24 @@ public class DataStreamSerializer implements StreamSerializer {
         dos.writeUTF(entry.getKey().name());
         OrganizationSection organizationSection = (OrganizationSection) entry.getValue();
         dos.writeInt(organizationSection.getOrganizations().size());
-        for (Organization organization : organizationSection.getOrganizations()) {
-            dos.writeUTF(organization.getHomePage().getName());
-            dos.writeUTF(organization.getHomePage().getUrl() != null ? organization.getHomePage().getUrl() : "null");
-            dos.writeInt(organization.getPeriods().size());
-//            for (Organization.Period period : organization.getPeriods()) {
-//                writeDate(dos, period.getBeginDate());
-//                writeDate(dos, period.getEndDate());
-//                dos.writeUTF(period.getTitle());
-//                dos.writeUTF(period.getDescription() != null ? period.getDescription() : "null");
-//            }
-            writeWithExeption(dos, organization.getPeriods(), new CustomConsumer<Organization.Period>() {
-                @Override
-                public void doWrite(DataOutputStream dos, Organization.Period element) throws IOException {
-                    writeDate(dos, element.getBeginDate());
-                    writeDate(dos, element.getEndDate());
-                    dos.writeUTF(element.getTitle());
-                    dos.writeUTF(element.getDescription() != null ? element.getDescription() : "null");
-                }
-            });
-        }
+
+        writeWithExeption(dos, organizationSection.getOrganizations(), new CustomConsumer<Organization>() {
+            @Override
+            public void doWrite(DataOutputStream dos, Organization element) throws IOException {
+                dos.writeUTF(element.getHomePage().getName());
+                dos.writeUTF(element.getHomePage().getUrl() != null ? element.getHomePage().getUrl() : "null");
+                dos.writeInt(element.getPeriods().size());
+                writeWithExeption(dos, element.getPeriods(), new CustomConsumer<Organization.Period>() {
+                    @Override
+                    public void doWrite(DataOutputStream dos, Organization.Period element) throws IOException {
+                        writeDate(dos, element.getBeginDate());
+                        writeDate(dos, element.getEndDate());
+                        dos.writeUTF(element.getTitle());
+                        dos.writeUTF(element.getDescription() != null ? element.getDescription() : "null");
+                    }
+                });
+            }
+        });
     }
 
     private void writeDate(DataOutputStream dos, LocalDate localDate) throws IOException {
