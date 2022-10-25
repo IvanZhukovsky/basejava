@@ -5,6 +5,7 @@ import com.urise.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
 
 public class DataStreamSerializer implements StreamSerializer {
@@ -80,7 +81,6 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
 
-
     private void writeTextSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
         dos.writeUTF(entry.getKey().name());
         TextSection textSection = (TextSection) entry.getValue();
@@ -88,8 +88,8 @@ public class DataStreamSerializer implements StreamSerializer {
     }
 
     @FunctionalInterface
-    interface CustomConsumer {
-        void doWrite(DataOutputStream dos, Object element) throws IOException;
+    interface CustomConsumer<T> {
+        void doWrite(DataOutputStream dos, T element) throws IOException;
     }
 
     private static void writeWithExeption(DataOutputStream dos, Collection collection, CustomConsumer customConsumer) throws IOException {
@@ -105,10 +105,10 @@ public class DataStreamSerializer implements StreamSerializer {
 //        for (String note : listSection.getContent()) {
 //            dos.writeUTF(note);
 //        }
-        writeWithExeption(dos, listSection.getContent(), new CustomConsumer() {
+        writeWithExeption(dos, listSection.getContent(), new CustomConsumer<String>() {
             @Override
-            public void doWrite(DataOutputStream dos, Object element) throws IOException {
-                dos.writeUTF(element.toString());
+            public void doWrite(DataOutputStream dos, String element) throws IOException {
+                dos.writeUTF(element);
             }
         });
 
@@ -122,12 +122,21 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(organization.getHomePage().getName());
             dos.writeUTF(organization.getHomePage().getUrl() != null ? organization.getHomePage().getUrl() : "null");
             dos.writeInt(organization.getPeriods().size());
-            for (Organization.Period period : organization.getPeriods()) {
-                writeDate(dos, period.getBeginDate());
-                writeDate(dos, period.getEndDate());
-                dos.writeUTF(period.getTitle());
-                dos.writeUTF(period.getDescription() != null ? period.getDescription() : "null");
-            }
+//            for (Organization.Period period : organization.getPeriods()) {
+//                writeDate(dos, period.getBeginDate());
+//                writeDate(dos, period.getEndDate());
+//                dos.writeUTF(period.getTitle());
+//                dos.writeUTF(period.getDescription() != null ? period.getDescription() : "null");
+//            }
+            writeWithExeption(dos, organization.getPeriods(), new CustomConsumer<Organization.Period>() {
+                @Override
+                public void doWrite(DataOutputStream dos, Organization.Period element) throws IOException {
+                    writeDate(dos, element.getBeginDate());
+                    writeDate(dos, element.getEndDate());
+                    dos.writeUTF(element.getTitle());
+                    dos.writeUTF(element.getDescription() != null ? element.getDescription() : "null");
+                }
+            });
         }
     }
 
