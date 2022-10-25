@@ -26,13 +26,6 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeInt(sections.size());
 
             for (Map.Entry<SectionType, AbstractSection> entry : sections.entrySet()) {
-
-//                switch (entry.getKey()) {
-//                    case OBJECTIVE, PERSONAL -> writeTextSection(dos, entry);
-//                    case ACHIEVEMENT, QUALIFICATIONS -> writeListSection(dos, entry);
-//                    case EXPERIENCE, EDUCATION -> writeOrganizationSection(dos, entry);
-//                }
-
                 switch (entry.getKey()) {
                     case OBJECTIVE:
                     case PERSONAL:
@@ -67,60 +60,19 @@ public class DataStreamSerializer implements StreamSerializer {
             size = dis.readInt();
             for (int i = 0; i < size; i++) {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
-                //Чтение TextSections
-                if (sectionType.equals(SectionType.OBJECTIVE) || sectionType.equals(SectionType.PERSONAL)) {
-                    resume.addSection(sectionType, new TextSection(dis.readUTF()));
-                }
-                //Чтение ListSections
-                if (sectionType.equals(SectionType.ACHIEVEMENT) || sectionType.equals(SectionType.QUALIFICATIONS)) {
-                    List<String> notes = new ArrayList<>();
-                    int notesSize = dis.readInt();
-                    for (int j = 0; j < notesSize; j++) {
-                        notes.add(dis.readUTF());
-                    }
-                    resume.addSection(sectionType, new ListSection(notes));
-                }
-                //Чтение OrganizationsSections
-                if (sectionType.equals(SectionType.EXPERIENCE) || sectionType.equals(SectionType.EDUCATION)) {
-                    //Создаем секцию в объекте resume
-                    resume.addSection(sectionType, new OrganizationSection(new ArrayList<>()));
-                    OrganizationSection organizationSection = (OrganizationSection) resume.getSections().get(sectionType);
-                    //Считываем количество организаций в данной секции
-                    int organizationsSize = dis.readInt();
-                    for (int j = 0; j < organizationsSize; j++) {
-                        //Считываем данные необходимые для создания объекта Link
-                        String linkName = dis.readUTF();
-                        String linkUrl = dis.readUTF();
-                        if (linkUrl.equals("null")) {
-                            linkUrl = null;
-                        }
-                        //Создаем организацию и кладем ее в коллекцию секции
-                        organizationSection.getOrganizations().add(new Organization(new Link(linkName, linkUrl), new ArrayList<>()));
-                        List<Organization> organizations = organizationSection.getOrganizations();
-
-                        //Считываем количество периодов в данной организации
-                        int periodSize = dis.readInt();
-                        for (int k = 0; k < periodSize; k++) {
-                            //Считываем дату начала
-                            int beginYear = dis.readInt();
-                            int beginMonth = dis.readInt();
-                            int beginDay = dis.readInt();
-                            //Считываем дату конца
-                            int endYear = dis.readInt();
-                            int endMonth = dis.readInt();
-                            int endDay = dis.readInt();
-                            //Создаем период в этой организации
-                            String title = dis.readUTF();
-                            String description = dis.readUTF();
-                            if (description.equals("null")) {
-                                description = null;
-                            }
-                            organizations.get(j).getPeriods().add(new Organization.Period(
-                                    LocalDate.of(beginYear, beginMonth, beginDay),
-                                    LocalDate.of(endYear, endMonth, endDay), title
-                                    , description));
-                        }
-                    }
+                switch (sectionType) {
+                    case OBJECTIVE:
+                    case PERSONAL:
+                        readTextSection(resume, sectionType, dis);
+                        break;
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
+                        readListSection(resume, sectionType, dis);
+                        break;
+                    case EXPERIENCE:
+                    case EDUCATION:
+                        readOrganizationSection(resume, sectionType, dis);
+                        break;
                 }
             }
             return resume;
@@ -148,29 +100,74 @@ public class DataStreamSerializer implements StreamSerializer {
         dos.writeInt(organizationSection.getOrganizations().size());
         for (Organization organization : organizationSection.getOrganizations()) {
             dos.writeUTF(organization.getHomePage().getName());
-            if (organization.getHomePage().getUrl() != null) {
-                dos.writeUTF(organization.getHomePage().getUrl());
-            } else {
-                dos.writeUTF("null");
-            }
+
+            dos.writeUTF(organization.getHomePage().getUrl() != null ? organization.getHomePage().getUrl() : "null");
+
             dos.writeInt(organization.getPeriods().size());
             for (Organization.Period period : organization.getPeriods()) {
-
-                dos.writeInt(period.getBeginDate().getYear());
-                dos.writeInt(period.getBeginDate().getMonthValue());
-                dos.writeInt(period.getBeginDate().getDayOfMonth());
-
-                dos.writeInt(period.getEndDate().getYear());
-                dos.writeInt(period.getEndDate().getMonthValue());
-                dos.writeInt(period.getEndDate().getDayOfMonth());
-
+                writeDate(dos, period.getBeginDate());
+                writeDate(dos, period.getEndDate());
                 dos.writeUTF(period.getTitle());
-                if (period.getDescription() != null) {
-                    dos.writeUTF(period.getDescription());
-                } else {
-                    dos.writeUTF("null");
-                }
+                dos.writeUTF(period.getDescription() != null ? period.getDescription() : "null");
             }
         }
+    }
+
+    private void writeDate(DataOutputStream dos, LocalDate localDate) throws IOException {
+        dos.writeInt(localDate.getYear());
+        dos.writeInt(localDate.getMonthValue());
+        dos.writeInt(localDate.getDayOfMonth());
+    }
+
+    private void readTextSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
+        resume.addSection(sectionType, new TextSection(dis.readUTF()));
+    }
+
+    private void readListSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
+        List<String> notes = new ArrayList<>();
+        int notesSize = dis.readInt();
+        for (int j = 0; j < notesSize; j++) {
+            notes.add(dis.readUTF());
+        }
+        resume.addSection(sectionType, new ListSection(notes));
+    }
+
+    private void readOrganizationSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
+        //Создаем секцию в объекте resume
+        resume.addSection(sectionType, new OrganizationSection(new ArrayList<>()));
+        OrganizationSection organizationSection = (OrganizationSection) resume.getSections().get(sectionType);
+        //Считываем количество организаций в данной секции
+        int organizationsSize = dis.readInt();
+        for (int j = 0; j < organizationsSize; j++) {
+            //Считываем данные необходимые для создания объекта Link
+            String linkName = dis.readUTF();
+            String linkUrl = dis.readUTF();
+            linkUrl = linkUrl.equals("null") ? null : linkUrl;
+            //Создаем организацию и кладем ее в коллекцию секции
+            organizationSection.getOrganizations().add(new Organization(new Link(linkName, linkUrl), new ArrayList<>()));
+            List<Organization> organizations = organizationSection.getOrganizations();
+
+            //Считываем количество периодов в данной организации
+            int periodSize = dis.readInt();
+            for (int k = 0; k < periodSize; k++) {
+                //Считываем дату начала
+                LocalDate beginDate = readDate(dis);
+                //Считываем дату конца
+                LocalDate endDate = readDate(dis);
+                //Создаем период в этой организации
+                String title = dis.readUTF();
+                String description = dis.readUTF();
+                description = description.equals("null") ? null : description;
+                organizations.get(j).getPeriods().add(new Organization.Period(
+                        beginDate, endDate, title, description));
+            }
+        }
+    }
+
+    private LocalDate readDate(DataInputStream dis) throws IOException {
+        int year = dis.readInt();
+        int month = dis.readInt();
+        int day = dis.readInt();
+        return LocalDate.of(year, month, day);
     }
 }
