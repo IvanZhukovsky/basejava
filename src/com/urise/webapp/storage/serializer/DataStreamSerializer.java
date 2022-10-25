@@ -5,9 +5,7 @@ import com.urise.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataStreamSerializer implements StreamSerializer {
 
@@ -22,6 +20,7 @@ public class DataStreamSerializer implements StreamSerializer {
                 dos.writeUTF(entry.getKey().name());
                 dos.writeUTF(entry.getValue());
             }
+
             Map<SectionType, AbstractSection> sections = resume.getSections();
             dos.writeInt(sections.size());
 
@@ -30,6 +29,7 @@ public class DataStreamSerializer implements StreamSerializer {
                     case OBJECTIVE:
                     case PERSONAL:
                         writeTextSection(dos, entry);
+                        //writeWithExeption(dos, entry, this::writeTextSection);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
@@ -79,19 +79,39 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
+
+
     private void writeTextSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
         dos.writeUTF(entry.getKey().name());
         TextSection textSection = (TextSection) entry.getValue();
         dos.writeUTF(textSection.getContent());
     }
 
+    @FunctionalInterface
+    interface CustomConsumer {
+        void doWrite(DataOutputStream dos, Object element) throws IOException;
+    }
+
+    private static void writeWithExeption(DataOutputStream dos, Collection collection, CustomConsumer customConsumer) throws IOException {
+        for (Object element : collection) {
+            customConsumer.doWrite(dos, element);
+        }
+    }
+
     private void writeListSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
         dos.writeUTF(entry.getKey().name());
         ListSection listSection = (ListSection) entry.getValue();
         dos.writeInt(listSection.getContent().size());
-        for (String note : listSection.getContent()) {
-            dos.writeUTF(note);
-        }
+//        for (String note : listSection.getContent()) {
+//            dos.writeUTF(note);
+//        }
+        writeWithExeption(dos, listSection.getContent(), new CustomConsumer() {
+            @Override
+            public void doWrite(DataOutputStream dos, Object element) throws IOException {
+                dos.writeUTF(element.toString());
+            }
+        });
+
     }
 
     private void writeOrganizationSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
