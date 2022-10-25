@@ -100,9 +100,7 @@ public class DataStreamSerializer implements StreamSerializer {
         dos.writeInt(organizationSection.getOrganizations().size());
         for (Organization organization : organizationSection.getOrganizations()) {
             dos.writeUTF(organization.getHomePage().getName());
-
             dos.writeUTF(organization.getHomePage().getUrl() != null ? organization.getHomePage().getUrl() : "null");
-
             dos.writeInt(organization.getPeriods().size());
             for (Organization.Period period : organization.getPeriods()) {
                 writeDate(dos, period.getBeginDate());
