@@ -16,20 +16,10 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
             Map<ContactType, String> contacts = resume.getContacts();
-            dos.writeInt(contacts.size());
 
-
-//            for (Map.Entry<ContactType, String> entry : contacts.entrySet()) {
-//                dos.writeUTF(entry.getKey().name());
-//                dos.writeUTF(entry.getValue());
-//            }
-
-            writeWithExeption(dos, contacts, new CustomConsumer<Map.Entry<ContactType, String>>() {
-                @Override
-                public void doWrite(DataOutputStream dos, Map.Entry<ContactType, String> element) throws IOException {
-                    dos.writeUTF(element.getKey().name());
-                    dos.writeUTF(element.getValue());
-                }
+            writeWithExeption(dos, contacts.entrySet(), element -> {
+                dos.writeUTF(element.getKey().name());
+                dos.writeUTF(element.getValue());
             });
 
             Map<SectionType, AbstractSection> sections = resume.getSections();
@@ -40,7 +30,6 @@ public class DataStreamSerializer implements StreamSerializer {
                     case OBJECTIVE:
                     case PERSONAL:
                         writeTextSection(dos, entry);
-                        //writeWithExeption(dos, entry, this::writeTextSection);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
@@ -54,7 +43,6 @@ public class DataStreamSerializer implements StreamSerializer {
             }
         }
     }
-
 
 
     @Override
@@ -101,58 +89,37 @@ public class DataStreamSerializer implements StreamSerializer {
 
     @FunctionalInterface
     interface CustomConsumer<T> {
-        void doWrite(DataOutputStream dos, T element) throws IOException;
+        void doWrite(T element) throws IOException;
     }
 
-    private static void writeWithExeption(DataOutputStream dos, Collection collection, CustomConsumer customConsumer) throws IOException {
-        for (Object element : collection) {
-            customConsumer.doWrite(dos, element);
+    private static <T> void writeWithExeption(DataOutputStream dos, Collection<T> collection, CustomConsumer<T> customConsumer) throws IOException {
+        dos.writeInt(collection.size());
+        for (T element : collection) {
+            customConsumer.doWrite(element);
         }
     }
 
-    private static void writeWithExeption(DataOutputStream dos, Map collection, CustomConsumer customConsumer) throws IOException {
-        for (Object element : collection.entrySet()) {
-            customConsumer.doWrite(dos, element);
-        }
-    }
 
     private void writeListSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
         dos.writeUTF(entry.getKey().name());
         ListSection listSection = (ListSection) entry.getValue();
-        dos.writeInt(listSection.getContent().size());
-//        for (String note : listSection.getContent()) {
-//            dos.writeUTF(note);
-//        }
-        writeWithExeption(dos, listSection.getContent(), new CustomConsumer<String>() {
-            @Override
-            public void doWrite(DataOutputStream dos, String element) throws IOException {
-                dos.writeUTF(element);
-            }
-        });
-
+        writeWithExeption(dos, listSection.getContent(), element -> dos.writeUTF(element));
     }
 
     private void writeOrganizationSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
         dos.writeUTF(entry.getKey().name());
         OrganizationSection organizationSection = (OrganizationSection) entry.getValue();
-        dos.writeInt(organizationSection.getOrganizations().size());
+        //dos.writeInt(organizationSection.getOrganizations().size());
 
-        writeWithExeption(dos, organizationSection.getOrganizations(), new CustomConsumer<Organization>() {
-            @Override
-            public void doWrite(DataOutputStream dos, Organization element) throws IOException {
-                dos.writeUTF(element.getHomePage().getName());
-                dos.writeUTF(element.getHomePage().getUrl() != null ? element.getHomePage().getUrl() : "null");
-                dos.writeInt(element.getPeriods().size());
-                writeWithExeption(dos, element.getPeriods(), new CustomConsumer<Organization.Period>() {
-                    @Override
-                    public void doWrite(DataOutputStream dos, Organization.Period element) throws IOException {
-                        writeDate(dos, element.getBeginDate());
-                        writeDate(dos, element.getEndDate());
-                        dos.writeUTF(element.getTitle());
-                        dos.writeUTF(element.getDescription() != null ? element.getDescription() : "null");
-                    }
-                });
-            }
+        writeWithExeption(dos, organizationSection.getOrganizations(), element -> {
+            dos.writeUTF(element.getHomePage().getName());
+            dos.writeUTF(element.getHomePage().getUrl() != null ? element.getHomePage().getUrl() : "null");
+            writeWithExeption(dos, element.getPeriods(), element1 -> {
+                DataStreamSerializer.this.writeDate(dos, element1.getBeginDate());
+                DataStreamSerializer.this.writeDate(dos, element1.getEndDate());
+                dos.writeUTF(element1.getTitle());
+                dos.writeUTF(element1.getDescription() != null ? element1.getDescription() : "null");
+            });
         });
     }
 
