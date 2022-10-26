@@ -17,10 +17,20 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(resume.getFullName());
             Map<ContactType, String> contacts = resume.getContacts();
             dos.writeInt(contacts.size());
-            for (Map.Entry<ContactType, String> entry : contacts.entrySet()) {
-                dos.writeUTF(entry.getKey().name());
-                dos.writeUTF(entry.getValue());
-            }
+
+
+//            for (Map.Entry<ContactType, String> entry : contacts.entrySet()) {
+//                dos.writeUTF(entry.getKey().name());
+//                dos.writeUTF(entry.getValue());
+//            }
+
+            writeWithExeption(dos, contacts, new CustomConsumer<Map.Entry<ContactType, String>>() {
+                @Override
+                public void doWrite(DataOutputStream dos, Map.Entry<ContactType, String> element) throws IOException {
+                    dos.writeUTF(element.getKey().name());
+                    dos.writeUTF(element.getValue());
+                }
+            });
 
             Map<SectionType, AbstractSection> sections = resume.getSections();
             dos.writeInt(sections.size());
@@ -44,6 +54,8 @@ public class DataStreamSerializer implements StreamSerializer {
             }
         }
     }
+
+
 
     @Override
     public Resume doRead(InputStream is) throws IOException {
@@ -94,6 +106,12 @@ public class DataStreamSerializer implements StreamSerializer {
 
     private static void writeWithExeption(DataOutputStream dos, Collection collection, CustomConsumer customConsumer) throws IOException {
         for (Object element : collection) {
+            customConsumer.doWrite(dos, element);
+        }
+    }
+
+    private static void writeWithExeption(DataOutputStream dos, Map collection, CustomConsumer customConsumer) throws IOException {
+        for (Object element : collection.entrySet()) {
             customConsumer.doWrite(dos, element);
         }
     }
