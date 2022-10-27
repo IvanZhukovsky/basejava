@@ -1,11 +1,9 @@
 package com.urise.webapp.storage.serializer;
 
-import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.*;
 
 public class DataStreamSerializer implements StreamSerializer {
@@ -23,27 +21,25 @@ public class DataStreamSerializer implements StreamSerializer {
             });
 
             Map<SectionType, AbstractSection> sections = resume.getSections();
-            dos.writeInt(sections.size());
 
-            for (Map.Entry<SectionType, AbstractSection> entry : sections.entrySet()) {
-                switch (entry.getKey()) {
+            writeWithExeption(dos, sections.entrySet(), element -> {
+                switch (element.getKey()) {
                     case OBJECTIVE:
                     case PERSONAL:
-                        writeTextSection(dos, entry);
+                        writeTextSection(dos, element);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        writeListSection(dos, entry);
+                        writeListSection(dos, element);
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
-                        writeOrganizationSection(dos, entry);
+                        writeOrganizationSection(dos, element);
                         break;
                 }
-            }
+            });
         }
     }
-
 
     @Override
     public Resume doRead(InputStream is) throws IOException {
@@ -109,7 +105,6 @@ public class DataStreamSerializer implements StreamSerializer {
     private void writeOrganizationSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
         dos.writeUTF(entry.getKey().name());
         OrganizationSection organizationSection = (OrganizationSection) entry.getValue();
-        //dos.writeInt(organizationSection.getOrganizations().size());
 
         writeWithExeption(dos, organizationSection.getOrganizations(), element -> {
             dos.writeUTF(element.getHomePage().getName());
