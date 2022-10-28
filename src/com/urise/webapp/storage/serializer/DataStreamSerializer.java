@@ -22,19 +22,21 @@ public class DataStreamSerializer implements StreamSerializer {
 
             Map<SectionType, AbstractSection> sections = resume.getSections();
 
+
             writeWithExeption(dos, sections.entrySet(), element -> {
+                dos.writeUTF(element.getKey().name());
                 switch (element.getKey()) {
                     case OBJECTIVE:
                     case PERSONAL:
-                        writeTextSection(dos, element);
+                        DataStreamSerializer.this.writeTextSection(dos, element);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        writeListSection(dos, element);
+                        DataStreamSerializer.this.writeListSection(dos, element);
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
-                        writeOrganizationSection(dos, element);
+                        DataStreamSerializer.this.writeOrganizationSection(dos, element);
                         break;
                 }
             });
@@ -47,15 +49,19 @@ public class DataStreamSerializer implements StreamSerializer {
             String uuid = dis.readUTF();
             String fullName = dis.readUTF();
             Resume resume = new Resume(uuid, fullName);
-            int size = dis.readInt();
-            for (int i = 0; i < size; i++) {
+
+            readWithExeption(dis, () -> {
                 ContactType contactType = ContactType.valueOf(dis.readUTF());
                 String value = dis.readUTF();
                 resume.addContact(contactType, value);
-            }
-
-            size = dis.readInt();
-            for (int i = 0; i < size; i++) {
+            });
+//            int size = dis.readInt();
+//            for (int i = 0; i < size; i++) {
+//                ContactType contactType = ContactType.valueOf(dis.readUTF());
+//                String value = dis.readUTF();
+//                resume.addContact(contactType, value);
+//            }
+            readWithExeption(dis, () -> {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 switch (sectionType) {
                     case OBJECTIVE:
@@ -71,14 +77,32 @@ public class DataStreamSerializer implements StreamSerializer {
                         readOrganizationSection(resume, sectionType, dis);
                         break;
                 }
-            }
+            });
+//            int size = dis.readInt();
+//            for (int i = 0; i < size; i++) {
+//                SectionType sectionType = SectionType.valueOf(dis.readUTF());
+//                switch (sectionType) {
+//                    case OBJECTIVE:
+//                    case PERSONAL:
+//                        readTextSection(resume, sectionType, dis);
+//                        break;
+//                    case ACHIEVEMENT:
+//                    case QUALIFICATIONS:
+//                        readListSection(resume, sectionType, dis);
+//                        break;
+//                    case EXPERIENCE:
+//                    case EDUCATION:
+//                        readOrganizationSection(resume, sectionType, dis);
+//                        break;
+//                }
+//            }
             return resume;
         }
     }
 
 
     private void writeTextSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
-        dos.writeUTF(entry.getKey().name());
+        //dos.writeUTF(entry.getKey().name());
         TextSection textSection = (TextSection) entry.getValue();
         dos.writeUTF(textSection.getContent());
     }
@@ -97,13 +121,13 @@ public class DataStreamSerializer implements StreamSerializer {
 
 
     private void writeListSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
-        dos.writeUTF(entry.getKey().name());
+        //dos.writeUTF(entry.getKey().name());
         ListSection listSection = (ListSection) entry.getValue();
         writeWithExeption(dos, listSection.getContent(), element -> dos.writeUTF(element));
     }
 
     private void writeOrganizationSection(DataOutputStream dos, Map.Entry<SectionType, AbstractSection> entry) throws IOException {
-        dos.writeUTF(entry.getKey().name());
+        //dos.writeUTF(entry.getKey().name());
         OrganizationSection organizationSection = (OrganizationSection) entry.getValue();
 
         writeWithExeption(dos, organizationSection.getOrganizations(), element -> {
@@ -124,16 +148,31 @@ public class DataStreamSerializer implements StreamSerializer {
         dos.writeInt(localDate.getDayOfMonth());
     }
 
+    @FunctionalInterface
+    interface CustomConsumerRead {
+        void doRead() throws IOException;
+    }
+
+    private static void readWithExeption(DataInputStream dis, CustomConsumerRead customConsumerRead) throws IOException {
+        int size = dis.readInt();
+        for (int i = 0; i < size; i++) {
+            customConsumerRead.doRead();
+        }
+    }
+
     private void readTextSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
         resume.addSection(sectionType, new TextSection(dis.readUTF()));
     }
 
     private void readListSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
+
         List<String> notes = new ArrayList<>();
-        int notesSize = dis.readInt();
-        for (int j = 0; j < notesSize; j++) {
-            notes.add(dis.readUTF());
-        }
+        readWithExeption(dis, () -> notes.add(dis.readUTF()));
+//        int notesSize = dis.readInt();
+//        for (int j = 0; j < notesSize; j++) {
+//            notes.add(dis.readUTF());
+//
+//        }
         resume.addSection(sectionType, new ListSection(notes));
     }
 
@@ -142,31 +181,58 @@ public class DataStreamSerializer implements StreamSerializer {
         resume.addSection(sectionType, new OrganizationSection(new ArrayList<>()));
         OrganizationSection organizationSection = (OrganizationSection) resume.getSections().get(sectionType);
         //Считываем количество организаций в данной секции
-        int organizationsSize = dis.readInt();
-        for (int j = 0; j < organizationsSize; j++) {
-            //Считываем данные необходимые для создания объекта Link
-            String linkName = dis.readUTF();
-            String linkUrl = dis.readUTF();
-            linkUrl = linkUrl.equals("null") ? null : linkUrl;
-            //Создаем организацию и кладем ее в коллекцию секции
-            organizationSection.getOrganizations().add(new Organization(new Link(linkName, linkUrl), new ArrayList<>()));
-            List<Organization> organizations = organizationSection.getOrganizations();
 
-            //Считываем количество периодов в данной организации
-            int periodSize = dis.readInt();
-            for (int k = 0; k < periodSize; k++) {
-                //Считываем дату начала
-                LocalDate beginDate = readDate(dis);
-                //Считываем дату конца
-                LocalDate endDate = readDate(dis);
-                //Создаем период в этой организации
-                String title = dis.readUTF();
-                String description = dis.readUTF();
-                description = description.equals("null") ? null : description;
-                organizations.get(j).getPeriods().add(new Organization.Period(
-                        beginDate, endDate, title, description));
+        readWithExeption(dis, new CustomConsumerRead() {
+            @Override
+            public void doRead() throws IOException {
+                String linkName = dis.readUTF();
+                String linkUrl = dis.readUTF();
+                linkUrl = linkUrl.equals("null") ? null : linkUrl;
+                //Создаем организацию и кладем ее в коллекцию секции
+                organizationSection.getOrganizations().add(new Organization(new Link(linkName, linkUrl), new ArrayList<>()));
+                List<Organization> organizations = organizationSection.getOrganizations();
+
+                //Считываем количество периодов в данной организации
+                readWithExeption(dis, () -> {
+                    //Считываем дату начала
+                    LocalDate beginDate = readDate(dis);
+                    //Считываем дату конца
+                    LocalDate endDate = readDate(dis);
+                    //Создаем период в этой организации
+                    String title = dis.readUTF();
+                    String description = dis.readUTF();
+                    description = description.equals("null") ? null : description;
+                    organizations.get(organizations.size() - 1).getPeriods().add(new Organization.Period(
+                            beginDate, endDate, title, description));
+                });
             }
-        }
+        });
+//        int organizationsSize = dis.readInt();
+//        for (int j = 0; j < organizationsSize; j++) {
+//            //Считываем данные необходимые для создания объекта Link
+//            String linkName = dis.readUTF();
+//            String linkUrl = dis.readUTF();
+//            linkUrl = linkUrl.equals("null") ? null : linkUrl;
+//            //Создаем организацию и кладем ее в коллекцию секции
+//            organizationSection.getOrganizations().add(new Organization(new Link(linkName, linkUrl), new ArrayList<>()));
+//            List<Organization> organizations = organizationSection.getOrganizations();
+//
+//            //Считываем количество периодов в данной организации
+//
+//            int periodSize = dis.readInt();
+//            for (int k = 0; k < periodSize; k++) {
+//                //Считываем дату начала
+//                LocalDate beginDate = readDate(dis);
+//                //Считываем дату конца
+//                LocalDate endDate = readDate(dis);
+//                //Создаем период в этой организации
+//                String title = dis.readUTF();
+//                String description = dis.readUTF();
+//                description = description.equals("null") ? null : description;
+//                organizations.get(j).getPeriods().add(new Organization.Period(
+//                        beginDate, endDate, title, description));
+//            }
+//        }
     }
 
     private LocalDate readDate(DataInputStream dis) throws IOException {
