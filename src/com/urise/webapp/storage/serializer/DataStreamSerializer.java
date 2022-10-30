@@ -50,21 +50,21 @@ public class DataStreamSerializer implements StreamSerializer {
             String fullName = dis.readUTF();
             Resume resume = new Resume(uuid, fullName);
 
-            readWithExeption(dis, () -> resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF()));
-            readWithExeption(dis, () -> {
+            readWithExeption1(dis, (CustomConsumerRead1<String>) list -> resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF()));
+            readWithExeption1(dis, (CustomConsumerRead1<String>) list -> {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 switch (sectionType) {
                     case OBJECTIVE:
                     case PERSONAL:
-                        readTextSection(resume, sectionType, dis);
+                        DataStreamSerializer.this.readTextSection(resume, sectionType, dis);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        readListSection(resume, sectionType, dis);
+                        DataStreamSerializer.this.readListSection(resume, sectionType, dis);
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
-                        readOrganizationSection(resume, sectionType, dis);
+                        DataStreamSerializer.this.readOrganizationSection(resume, sectionType, dis);
                         break;
                 }
             });
@@ -103,18 +103,6 @@ public class DataStreamSerializer implements StreamSerializer {
         dos.writeInt(localDate.getYear());
         dos.writeInt(localDate.getMonthValue());
         dos.writeInt(localDate.getDayOfMonth());
-    }
-
-    @FunctionalInterface
-    interface CustomConsumerRead {
-        void doRead() throws IOException;
-    }
-
-    private static void readWithExeption(DataInputStream dis, CustomConsumerRead customConsumerRead) throws IOException {
-        int size = dis.readInt();
-        for (int i = 0; i < size; i++) {
-            customConsumerRead.doRead();
-        }
     }
 
     @FunctionalInterface
