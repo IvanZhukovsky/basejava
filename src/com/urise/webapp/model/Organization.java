@@ -38,6 +38,10 @@ public class Organization implements Serializable {
         return periods;
     }
 
+    public void setPeriods(List<Period> periods) {
+        this.periods = periods;
+    }
+
     public void setHomePage(Link homePage) {
         this.homePage = homePage;
     }
