@@ -21,8 +21,7 @@ public class DataStreamSerializer implements StreamSerializer {
             });
 
             Map<SectionType, AbstractSection> sections = resume.getSections();
-
-
+            
             writeWithExeption(dos, sections.entrySet(), entry -> {
                 dos.writeUTF(entry.getKey().name());
                 switch (entry.getKey()) {
@@ -32,7 +31,7 @@ public class DataStreamSerializer implements StreamSerializer {
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        writeWithExeption(dos, ((ListSection) entry.getValue()).getContent(), element -> dos.writeUTF(element));
+                        writeWithExeption(dos, ((ListSection) entry.getValue()).getContent(), dos::writeUTF);
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
@@ -56,11 +55,11 @@ public class DataStreamSerializer implements StreamSerializer {
                 switch (sectionType) {
                     case OBJECTIVE:
                     case PERSONAL:
-                        DataStreamSerializer.this.readTextSection(resume, sectionType, dis);
+                        resume.addSection(sectionType, new TextSection(dis.readUTF()));
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        DataStreamSerializer.this.readListSection(resume, sectionType, dis);
+                        resume.addSection(sectionType, new ListSection(readWithExeption1(dis, list1 -> list1.add(dis.readUTF()))));
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
@@ -117,14 +116,6 @@ public class DataStreamSerializer implements StreamSerializer {
             customConsumerRead1.doRead(list);
         }
         return list;
-    }
-
-    private void readTextSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
-        resume.addSection(sectionType, new TextSection(dis.readUTF()));
-    }
-
-    private void readListSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
-        resume.addSection(sectionType, new ListSection(readWithExeption1(dis, list -> list.add(dis.readUTF()))));
     }
 
     private void readOrganizationSection(Resume resume, SectionType sectionType, DataInputStream dis) throws IOException {
