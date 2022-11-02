@@ -33,16 +33,13 @@ public class MainStream {
     }
 
     private static List<Integer> oddOrEven(List<Integer> integers) {
-        if (integers.stream()
-                .reduce(0, (a, b) -> a + b) % 2 == 0) {
-            return integers.stream()
-                    .filter(integer -> integer % 2 == 0)
-                    .collect(Collectors.toList());
-        } else {
-            return integers.stream()
-                    .filter(integer -> integer % 2 != 0)
-                    .collect(Collectors.toList());
-        }
+        int number = integers.stream()
+                .reduce(0, (a, b) -> a + b) % 2;
+
+        return integers.stream()
+                .filter(integer -> integer % 2 == number)
+                .collect(Collectors.toList());
+
     }
 
 }
