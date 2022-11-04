@@ -16,6 +16,7 @@ public class MainStream {
         list.add(4);
         list.add(1);
         list.add(5);
+
         list.add(6);
 
         for (Integer integer : oddOrEven(list)) {
@@ -39,7 +40,6 @@ public class MainStream {
         return integers.stream()
                 .filter(integer -> integer % 2 == number)
                 .collect(Collectors.toList());
-
     }
 
 }
