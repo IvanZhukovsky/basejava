@@ -4,11 +4,6 @@ import com.urise.webapp.Config;
 
 public class SqlStorageTest extends AbstractStorageTest{
     public SqlStorageTest() {
-        super(new SqlStorage(Config.get().getDbUrl(), Config.get().getDbUser(), Config.get().getDbPassword()));
-    }
-
-    @Override
-    public void saveExist() {
-        super.saveExist();
+        super(Config.get().getSqlStorage());
     }
 }

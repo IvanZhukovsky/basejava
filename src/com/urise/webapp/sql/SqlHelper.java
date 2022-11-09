@@ -4,6 +4,7 @@ import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -11,8 +12,8 @@ public class SqlHelper {
 
     private final ConnectionFactory connectionFactory;
 
-    public SqlHelper(ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
+    public SqlHelper(String dbUrl, String dbUser, String dbPassword) {
+        this.connectionFactory =  () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);;
     }
     public <P> P commandForResult(String command, DataBaseFunction<PreparedStatement, P> function){
         try (Connection conn = connectionFactory.getConnection();
