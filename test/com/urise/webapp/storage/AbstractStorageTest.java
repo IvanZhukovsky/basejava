@@ -1,5 +1,6 @@
 package com.urise.webapp.storage;
 
+import com.urise.webapp.Config;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.*;
@@ -15,7 +16,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractStorageTest {
-    protected static final File STORAGE_DIR = new File("storage");
+
+    protected static final File STORAGE_DIR = Config.get().getStorageDir();
+    //protected static final File STORAGE_DIR = new File("storage");
     protected final Storage storage;
 
     private final static String UUID_1 = "uuid1";
@@ -37,29 +40,29 @@ public abstract class AbstractStorageTest {
         R3 = ResumeTestData.createResume(UUID_3, "Name3");
         R4 = ResumeTestData.createResume(UUID_4, "Name4");
 
-        R1.addContact(ContactType.EMAIL, "mail1@ya.ru");
-        R1.addContact(ContactType.TELEFON, "11111");
-        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
-        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
-        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement11", "Achievement12", "Achievement13"));
-        R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
-        R1.addSection(SectionType.EXPERIENCE, new OrganizationSection(
-                new Organization("Organization11", "http://organization11.ru",
-                        new Organization.Period(2005, Month.JANUARY, "position1", "content1"),
-                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))
-        ));
-        R1.addSection(SectionType.EDUCATION, new OrganizationSection(
-                new Organization("Institute", null,
-                        new Organization.Period(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
-                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet"))
-        ));
-
-        R2.addContact(ContactType.SKYPE, "skype2");
-        R2.addContact(ContactType.TELEFON, "22222");
-        R2.addSection(SectionType.EXPERIENCE,
-                new OrganizationSection(
-                        new Organization("Organization2", "http://Organization2.ru",
-                                new Organization.Period(2015, Month.JANUARY, "position1", "content1"))));
+//        R1.addContact(ContactType.EMAIL, "mail1@ya.ru");
+//        R1.addContact(ContactType.TELEFON, "11111");
+//        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
+//        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
+//        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement11", "Achievement12", "Achievement13"));
+//        R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
+//        R1.addSection(SectionType.EXPERIENCE, new OrganizationSection(
+//                new Organization("Organization11", "http://organization11.ru",
+//                        new Organization.Period(2005, Month.JANUARY, "position1", "content1"),
+//                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))
+//        ));
+//        R1.addSection(SectionType.EDUCATION, new OrganizationSection(
+//                new Organization("Institute", null,
+//                        new Organization.Period(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
+//                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet"))
+//        ));
+//
+//        R2.addContact(ContactType.SKYPE, "skype2");
+//        R2.addContact(ContactType.TELEFON, "22222");
+//        R2.addSection(SectionType.EXPERIENCE,
+//                new OrganizationSection(
+//                        new Organization("Organization2", "http://Organization2.ru",
+//                                new Organization.Period(2015, Month.JANUARY, "position1", "content1"))));
     }
 
     protected AbstractStorageTest(Storage storage) {
