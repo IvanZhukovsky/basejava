@@ -1,5 +1,6 @@
 package com.urise.webapp.sql;
 
+import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
@@ -13,9 +14,11 @@ public class SqlHelper {
     private final ConnectionFactory connectionFactory;
 
     public SqlHelper(String dbUrl, String dbUser, String dbPassword) {
-        this.connectionFactory =  () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);;
+        this.connectionFactory = () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        ;
     }
-    public <P> P commandForResult(String command, DataBaseFunction<PreparedStatement, P> function){
+
+    public <P> P commandForResult(String command, DataBaseFunction<PreparedStatement, P> function) {
         try (Connection conn = connectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(command)) {
             return function.apply(ps);
@@ -24,12 +27,15 @@ public class SqlHelper {
         }
     }
 
-    public void commmand(String command, DataBaseConsumer<PreparedStatement> consumer){
+    public void commmand(String command, DataBaseConsumer<PreparedStatement> consumer) {
         try (Connection conn = connectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(command)) {
             consumer.accept(ps);
         } catch (SQLException e) {
-            throw new StorageException(e);
+            if (e.getSQLState().equals("23505")) {
+                throw new ExistStorageException("Запись уже есть");
+            } else
+                throw new StorageException(e);
         }
     }
 
