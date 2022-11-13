@@ -1,13 +1,14 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
+import com.urise.webapp.model.ContactType;
 import com.urise.webapp.model.Resume;
 import com.urise.webapp.sql.SqlHelper;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SqlStorage implements Storage {
     private final SqlHelper sqlHelper;
@@ -24,62 +25,117 @@ public class SqlStorage implements Storage {
     @Override
     public void update(Resume r) {
         this.get(r.getUuid());
-        sqlHelper.commmand("UPDATE resume SET full_name = ? WHERE uuid = ?", ps -> {
-            ps.setString(2, r.getUuid());
-            ps.setString(1, r.getFullName());
-            ps.executeUpdate();
+        sqlHelper.transactionalExecute(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("UPDATE resume SET full_name = ? WHERE uuid = ?")) {
+                ps.setString(2, r.getUuid());
+                ps.setString(1, r.getFullName());
+                ps.executeUpdate();
+            }
+            return null;
+        });
+        sqlHelper.transactionalExecute(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("UPDATE contact " +
+                    "SET value = ? " +
+                    "WHERE resume_uuid = ? AND type = ?")) {
+                for (Map.Entry<ContactType, String> e : r.getContacts().entrySet()) {
+                        ps.setString(3, e.getKey().name());
+                        ps.setString(1, e.getValue());
+                        ps.setString(2, r.getUuid());
+                        ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+            return null;
         });
     }
 
     @Override
     public void save(Resume r) {
-        sqlHelper.commmand("INSERT INTO resume (uuid, full_name) VALUES (?,?)", ps -> {
-            ps.setString(1, r.getUuid());
-            ps.setString(2, r.getFullName());
-            ps.execute();
+        sqlHelper.transactionalExecute(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO resume (uuid, full_name) VALUES (?,?)")) {
+                ps.setString(1, r.getUuid());
+                ps.setString(2, r.getFullName());
+                ps.execute();
+            }
+            try (PreparedStatement ps = conn.prepareStatement("INSERT INTO contact (resume_uuid, type, value) VALUES (?,?,?)")){
+                for (Map.Entry<ContactType, String> e : r.getContacts().entrySet()) {
+                        ps.setString(1, r.getUuid());
+                        ps.setString(2, e.getKey().name());
+                        ps.setString(3, e.getValue());
+                        ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+            return null;
         });
-
     }
 
     @Override
     public Resume get(String uuid) {
-        return sqlHelper.commandForResult("SELECT * FROM resume r WHERE r.uuid=?", ps -> {
+        return sqlHelper.commandForResult("SELECT * FROM resume r " +
+                "LEFT JOIN contact c " +
+                "on r.uuid = c.resume_uuid WHERE r.uuid=?", ps -> {
             ps.setString(1, uuid);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
                 throw new NotExistStorageException(uuid);
             }
-            return new Resume(uuid, rs.getString("full_name"));
+            Resume r = new Resume(uuid, rs.getString("full_name"));
+            do {
+                String value = rs.getString("value");
+                ContactType type = ContactType.valueOf(rs.getString("type"));
+                r.addContact(type, value);
+            } while (rs.next());
+            return r;
         });
     }
 
     @Override
     public void delete(String uuid) {
-        this.get(uuid);
         sqlHelper.commmand("DELETE FROM resume  WHERE uuid = ?", ps -> {
             ps.setString(1, uuid);
-            ps.execute();
+            if (ps.executeUpdate() == 0) {
+                throw new NotExistStorageException(uuid);
+            }
         });
     }
 
     @Override
     public List<Resume> getAllSorted() {
-        return sqlHelper.commandForResult("SELECT * FROM resume ORDER BY (full_name, uuid)", ps -> {
-            List<Resume> resumes = new ArrayList<>();
+        List<Resume> resumesBase = new ArrayList<>();
+        sqlHelper.commmand("SELECT * FROM resume ORDER BY (full_name, uuid)", ps -> {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                resumes.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
+                resumesBase.add(new Resume(rs.getString("uuid"), rs.getString("full_name")));
             }
-            return resumes;
         });
+        for (Resume resume : resumesBase) {
+            sqlHelper.commmand("SELECT * FROM contact WHERE resume_uuid = ?", ps -> {
+                ps.setString(1, resume.getUuid());
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    resume.addContact(ContactType.valueOf(rs.getString("type")), rs.getString("value"));
+                }
+            });
+        }
+        return resumesBase;
+
+//        List<Resume> resumesBase = new ArrayList<>();
+//        sqlHelper.commmand("SELECT * FROM resume r LEFT JOIN contact c ON r.uuid = c.resume_uuid " +
+//                "ORDER BY (full_name, uuid)", ps -> {
+//            ResultSet rs = ps.executeQuery();
+//            while (rs.next()) {
+//                resumesBase.add(new Resume(rs.getString("uuid"), rs.getString("full_name")));
+//            }
+//        });
+//        return resumesBase;
     }
 
     @Override
     public int size() {
         return sqlHelper.commandForResult("SELECT count(*) FROM resume", ps -> {
             ResultSet rs = ps.executeQuery();
-            int count = 0;
-            count = rs.next() ? rs.getInt(1) : count;
+            int count = rs.next() ? rs.getInt(1) : 0;
             return count;
         });
     }

@@ -12,6 +12,7 @@ import java.io.File;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,10 +22,10 @@ public abstract class AbstractStorageTest {
     //protected static final File STORAGE_DIR = new File("storage");
     protected final Storage storage;
 
-    private final static String UUID_1 = "uuid1";
-    private final static String UUID_2 = "uuid2";
-    private final static String UUID_3 = "uuid3";
-    private final static String UUID_4 = "uuid4";
+    private final static String UUID_1 = UUID.randomUUID().toString();
+    private final static String UUID_2 = UUID.randomUUID().toString();
+    private final static String UUID_3 = UUID.randomUUID().toString();
+    private final static String UUID_4 = UUID.randomUUID().toString();
 
     protected static final Resume R1;
     protected static final Resume R2;
@@ -40,8 +41,8 @@ public abstract class AbstractStorageTest {
         R3 = ResumeTestData.createResume(UUID_3, "Name3");
         R4 = ResumeTestData.createResume(UUID_4, "Name4");
 
-//        R1.addContact(ContactType.EMAIL, "mail1@ya.ru");
-//        R1.addContact(ContactType.TELEFON, "11111");
+        R1.addContact(ContactType.EMAIL, "mail1@ya.ru");
+        R1.addContact(ContactType.TELEFON, "11111");
 //        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
 //        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
 //        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement11", "Achievement12", "Achievement13"));
@@ -57,12 +58,16 @@ public abstract class AbstractStorageTest {
 //                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet"))
 //        ));
 //
-//        R2.addContact(ContactType.SKYPE, "skype2");
-//        R2.addContact(ContactType.TELEFON, "22222");
+        R2.addContact(ContactType.SKYPE, "skype2");
+        R2.addContact(ContactType.TELEFON, "22222");
 //        R2.addSection(SectionType.EXPERIENCE,
 //                new OrganizationSection(
 //                        new Organization("Organization2", "http://Organization2.ru",
 //                                new Organization.Period(2015, Month.JANUARY, "position1", "content1"))));
+        R3.addContact(ContactType.EMAIL, "mail1@ya.ru");
+        R3.addContact(ContactType.TELEFON, "11111");
+        R4.addContact(ContactType.EMAIL, "mail1@ya.ru");
+        R4.addContact(ContactType.TELEFON, "11111");
     }
 
     protected AbstractStorageTest(Storage storage) {
@@ -88,6 +93,8 @@ public abstract class AbstractStorageTest {
     @Test
     public void update() {
         Resume newResume = new Resume(UUID_1, "New Name");
+        newResume.addContact(ContactType.EMAIL, "mail1@ya.ru");
+        newResume.addContact(ContactType.TELEFON, "11111");
         storage.update(newResume);
         Assert.assertTrue(newResume.equals(storage.get(UUID_1)));
     }
