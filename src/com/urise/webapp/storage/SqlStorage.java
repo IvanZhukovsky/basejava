@@ -104,9 +104,9 @@ public class SqlStorage implements Storage {
             sqlHelper.commmand("SELECT * FROM contact WHERE resume_uuid = ?", ps -> {
                 ps.setString(1, resume.getUuid());
                 ResultSet rs = ps.executeQuery();
-                if (!rs.next()) {
-                    throw new NotExistStorageException(resume.getUuid());
-                }
+//                if (!rs.next()) {
+//                    throw new NotExistStorageException(resume.getUuid());
+//                }
                 while (rs.next()) {
                     resume.addContact(ContactType.valueOf(rs.getString("type")), rs.getString("value"));
                 }
