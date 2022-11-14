@@ -58,8 +58,8 @@ public abstract class AbstractStorageTest {
 //                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet"))
 //        ));
 //
-        R2.addContact(ContactType.SKYPE, "skype2");
-        R2.addContact(ContactType.TELEFON, "22222");
+        //R2.addContact(ContactType.SKYPE, "skype2");
+        //R2.addContact(ContactType.TELEFON, "22222");
 //        R2.addSection(SectionType.EXPERIENCE,
 //                new OrganizationSection(
 //                        new Organization("Organization2", "http://Organization2.ru",
@@ -142,6 +142,7 @@ public abstract class AbstractStorageTest {
         List<Resume> list = storage.getAllSorted();
         assertEquals(3, list.size());
         assertEquals(list, Arrays.asList(R1, R2, R3));
+        //assertEquals(list.get(0), R1);
     }
 
     @Test
