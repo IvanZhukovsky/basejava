@@ -98,8 +98,10 @@ public class SqlStorage implements Storage {
             ResultSet rs = ps.executeQuery();
             Map<String, Resume> map = new LinkedHashMap<>();
             String uuid = "";
-
-            while (rs.next()) {
+            if (!rs.next()) {
+                throw new NotExistStorageException(uuid);
+            }
+             do {
                 uuid = rs.getString("uuid");
                 if (!map.containsKey(uuid)) {
                     map.put(uuid, new Resume(uuid, rs.getString("full_name")));
@@ -109,7 +111,7 @@ public class SqlStorage implements Storage {
                 } else {
                     addContact(rs, map.get(uuid));
                 }
-            }
+            } while (rs.next());
             return new ArrayList<>(map.values());
         });
 //Предидущий вариант
