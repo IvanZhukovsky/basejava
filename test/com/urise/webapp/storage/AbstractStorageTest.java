@@ -64,10 +64,6 @@ public abstract class AbstractStorageTest {
 //                new OrganizationSection(
 //                        new Organization("Organization2", "http://Organization2.ru",
 //                                new Organization.Period(2015, Month.JANUARY, "position1", "content1"))));
-        R3.addContact(ContactType.EMAIL, "mail1@ya.ru");
-        R3.addContact(ContactType.TELEFON, "11111");
-        R4.addContact(ContactType.EMAIL, "mail1@ya.ru");
-        R4.addContact(ContactType.TELEFON, "11111");
     }
 
     protected AbstractStorageTest(Storage storage) {
@@ -93,8 +89,8 @@ public abstract class AbstractStorageTest {
     @Test
     public void update() {
         Resume newResume = new Resume(UUID_1, "New Name");
-        newResume.addContact(ContactType.EMAIL, "mail1@ya.ru");
-        newResume.addContact(ContactType.TELEFON, "11111");
+//        newResume.addContact(ContactType.EMAIL, "mail1@ya.ru");
+//        newResume.addContact(ContactType.TELEFON, "11111");
         storage.update(newResume);
         Assert.assertTrue(newResume.equals(storage.get(UUID_1)));
     }
@@ -117,7 +113,7 @@ public abstract class AbstractStorageTest {
     }
 
     @Test(expected = NotExistStorageException.class)
-    public void delete() throws Exception{
+    public void delete() throws Exception {
         //Проверяем произошло ли уменьшение счетчика при удалении резюме
         storage.delete(UUID_1);
         assertSize(2);
