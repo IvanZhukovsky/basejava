@@ -51,10 +51,10 @@ public abstract class AbstractStorageTest {
 
         R4.addContact(ContactType.EMAIL, "mail1@ya.ru");
         R4.addContact(ContactType.TELEFON, "11111");
-//        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
-//        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
-//        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement11", "Achievement12", "Achievement13"));
-//        R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
+        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
+        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
+        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement11", "Achievement12", "Achievement13"));
+        R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
 //        R1.addSection(SectionType.EXPERIENCE, new OrganizationSection(
 //                new Organization("Organization11", "http://organization11.ru",
 //                        new Organization.Period(2005, Month.JANUARY, "position1", "content1"),
