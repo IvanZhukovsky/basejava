@@ -11,7 +11,12 @@ import java.io.PrintWriter;
 
 public class ResumeServlet extends HttpServlet {
 
-    private Storage storage = Config.get().getSqlStorage();
+    private Storage storage;
+
+    @Override
+    public void init() throws ServletException {
+        storage = Config.get().getSqlStorage();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
