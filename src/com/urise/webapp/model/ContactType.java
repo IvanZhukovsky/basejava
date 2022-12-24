@@ -1,7 +1,12 @@
 package com.urise.webapp.model;
 
 public enum ContactType {
-    TELEFON ("Тел."),
+    TELEFON ("Тел.") {
+        @Override
+        protected String toHtml0(String value) {
+            return getTitle() + ": " + value;
+        }
+    },
     SKYPE ("Skype"){
         @Override
         public String toHtml0(String value) {
@@ -31,14 +36,11 @@ public enum ContactType {
     }
 
     protected String toHtml0(String value) {
-        return title + ": " + value;
-    }
-    public String toHtml(String value) {
-        return (value == null) ? "" : toHtml0(value);
+        return toLink(value, getTitle());
     }
 
-    public String toLink(String href) {
-        return toLink(href, title);
+    public String toHtml(String value) {
+        return (value == null) ? "" : toHtml0(value);
     }
 
     public static String toLink(String href, String title) {
