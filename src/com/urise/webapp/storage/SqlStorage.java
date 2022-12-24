@@ -3,6 +3,7 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.*;
 import com.urise.webapp.sql.SqlHelper;
+import com.urise.webapp.util.JsonParser;
 
 import java.sql.*;
 import java.util.*;
@@ -113,36 +114,69 @@ public class SqlStorage implements Storage {
         });
     }
 
+//    @Override
+//    public List<Resume> getAllSorted() {
+//        return sqlHelper.transactionalExecute(conn -> {
+//            List<Resume> resumesBase = new ArrayList<>();
+//            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM resume ORDER BY (full_name, uuid)")) {
+//                ResultSet rs = ps.executeQuery();
+//                while (rs.next()) {
+//                    resumesBase.add(new Resume(rs.getString("uuid"), rs.getString("full_name")));
+//                }
+//            }
+//            for (Resume resume : resumesBase) {
+//            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM contact WHERE resume_uuid = ?")) {
+//                ps.setString(1, resume.getUuid());
+//                ResultSet rs = ps.executeQuery();
+//                while (rs.next()) {
+//                    resume.addContact(ContactType.valueOf(rs.getString("type")), rs.getString("value"));
+//                }
+//            }
+//            }
+//
+//            for (Resume resume : resumesBase) {
+//                try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM sections WHERE resume_uuid = ?")) {
+//                    ps.setString(1, resume.getUuid());
+//                    ResultSet rs = ps.executeQuery();
+//                    while (rs.next()) {
+//                        addSection(rs, resume);
+//                    }
+//                }
+//            }
+//            return resumesBase;
+//        });
+//    }
+
     @Override
     public List<Resume> getAllSorted() {
         return sqlHelper.transactionalExecute(conn -> {
-            List<Resume> resumesBase = new ArrayList<>();
-            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM resume ORDER BY (full_name, uuid)")) {
+            Map<String, Resume> resumes = new LinkedHashMap<>();
+
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM resume ORDER BY full_name, uuid")) {
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    resumesBase.add(new Resume(rs.getString("uuid"), rs.getString("full_name")));
+                    String uuid = rs.getString("uuid");
+                    resumes.put(uuid, new Resume(uuid, rs.getString("full_name")));
                 }
-            }
-            for (Resume resume : resumesBase) {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM contact WHERE resume_uuid = ?")) {
-                ps.setString(1, resume.getUuid());
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    resume.addContact(ContactType.valueOf(rs.getString("type")), rs.getString("value"));
-                }
-            }
             }
 
-            for (Resume resume : resumesBase) {
-                try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM sections WHERE resume_uuid = ?")) {
-                    ps.setString(1, resume.getUuid());
-                    ResultSet rs = ps.executeQuery();
-                    while (rs.next()) {
-                        addSectionByType(SectionType.valueOf(rs.getString("type")), resume, rs.getString("content"));
-                    }
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM contact")) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Resume r = resumes.get(rs.getString("resume_uuid"));
+                    addContact(rs, r);
                 }
             }
-            return resumesBase;
+
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM sections")) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Resume r = resumes.get(rs.getString("resume_uuid"));
+                    addSection(rs, r);
+                }
+            }
+
+            return new ArrayList<>(resumes.values());
         });
     }
 
@@ -153,8 +187,11 @@ public class SqlStorage implements Storage {
     }
 
     public void addSection(ResultSet rs, Resume resume) throws SQLException {
+
+        String content = rs.getString ("content");
         if (rs.getString("type") != null) {
-            addSectionByType(SectionType.valueOf(rs.getString("type")), resume, rs.getString("content"));
+            SectionType type = SectionType.valueOf(rs.getString ("type"));
+            resume.addSection(type, JsonParser.read(content, AbstractSection.class));
         }
     }
 
@@ -183,45 +220,13 @@ public class SqlStorage implements Storage {
     private void insertSections(Connection conn, Resume r) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement("INSERT INTO sections (resume_uuid, type, content) VALUES (?,?,?)")) {
             for (Map.Entry<SectionType, AbstractSection> e : r.getSections().entrySet()) {
-                String content = "";
-                switch (e.getKey()) {
-                    case OBJECTIVE:
-                    case PERSONAL:
-                        TextSection textSection = (TextSection) e.getValue();
-                        content = textSection.getContent();
-                        break;
-                    case ACHIEVEMENT:
-                    case QUALIFICATIONS:
-                        ListSection listSection = (ListSection) e.getValue();
-                        for (String note : listSection.getContent()) {
-                            content = content + note + "\n";
-                        }
-                        break;
-                }
                 ps.setString(1, r.getUuid());
                 ps.setString(2, e.getKey().name());
-                ps.setString(3, content);
+                AbstractSection section = e.getValue();
+                ps.setString(3, JsonParser.write(section, AbstractSection.class));
                 ps.addBatch();
             }
             ps.executeBatch();
-        }
-    }
-
-    private void addSectionByType(SectionType sectionType, Resume resume, String sectionContent) {
-        switch (sectionType) {
-            case OBJECTIVE:
-            case PERSONAL:
-                resume.addSection(sectionType, new TextSection(sectionContent));
-                break;
-            case ACHIEVEMENT:
-            case QUALIFICATIONS:
-                List<String> content = new ArrayList<>();
-                Scanner scanner = new Scanner(sectionContent);
-                while (scanner.hasNextLine()) {
-                    content.add(scanner.nextLine());
-                }
-                resume.addSection(sectionType, new ListSection(content));
-                break;
         }
     }
 }

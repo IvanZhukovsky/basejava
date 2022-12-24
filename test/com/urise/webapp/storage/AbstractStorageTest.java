@@ -4,6 +4,7 @@ import com.urise.webapp.Config;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.*;
+import com.urise.webapp.util.JsonParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,13 +37,13 @@ public abstract class AbstractStorageTest {
     protected static final int STORAGE_LIMIT = 10000;
 
     static {
-        R1 = ResumeTestData.createResume(UUID_1, "Name1");
+        R1 = ResumeTestData.createResume(UUID_1, "Григорий Кислин");
         R2 = ResumeTestData.createResume(UUID_2, "Name2");
         R3 = ResumeTestData.createResume(UUID_3, "Name3");
         R4 = ResumeTestData.createResume(UUID_4, "Name4");
 
-        R1.addContact(ContactType.EMAIL, "mail1@ya.ru");
-        R1.addContact(ContactType.TELEFON, "11111");
+        R1.addContact(ContactType.EMAIL, "gkislin@yandex.ru");
+        R1.addContact(ContactType.TELEFON, "+7(921) 855-0482");
 
         R2.addContact(ContactType.EMAIL, "mail1@ya.ru");
         R2.addContact(ContactType.TELEFON, "11111");
@@ -51,20 +52,31 @@ public abstract class AbstractStorageTest {
 
         R4.addContact(ContactType.EMAIL, "mail1@ya.ru");
         R4.addContact(ContactType.TELEFON, "11111");
-        R1.addSection(SectionType.OBJECTIVE, new TextSection("Objective1"));
-        R1.addSection(SectionType.PERSONAL, new TextSection("Personal data"));
-        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement11", "Achievement12", "Achievement13"));
+        R1.addSection(SectionType.OBJECTIVE, new TextSection("Ведущий стажировок и корпоративного обучения по " +
+                "Java Web и Enterprise технологиям"));
+        R1.addSection(SectionType.PERSONAL, new TextSection("Аналитический склад ума, сильная логика, " +
+                "креативность, инициативность. Пурист кода и архитектуры."));
+        R1.addSection(SectionType.ACHIEVEMENT, new ListSection("Организация команды и успешная реализация " +
+                "Java проектов для сторонних заказчиков: приложения автопарк на стеке Spring Cloud/микросервисы, " +
+                "система мониторинга показателей спортсменов на Spring Boot, участие в проекте МЭШ на Play-2, " +
+                "многомодульный Spring Boot + Vaadin проект для комплексных DIY смет",
+                "С 2013 года: разработка проектов Разработка Web приложения,\"Java Enterprise\", \"Многомодульный " +
+                        "maven. Многопоточность. XML (JAXB/StAX). Веб сервисы (JAX-RS/SOAP). Удаленное взаимодействие " +
+                        "(JMS/AKKA)\". Организация онлайн стажировок и ведение проектов. Более 3500 выпускников.",
+                "Реализация двухфакторной аутентификации для онлайн платформы управления проектами Wrike. Интеграция с " +
+                        "Twilio, DuoSecurity, Google Authenticator, Jira, Zendesk."));
         R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
-//        R1.addSection(SectionType.EXPERIENCE, new OrganizationSection(
-//                new Organization("Organization11", "http://organization11.ru",
-//                        new Organization.Period(2005, Month.JANUARY, "position1", "content1"),
-//                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))
-//        ));
-//        R1.addSection(SectionType.EDUCATION, new OrganizationSection(
-//                new Organization("Institute", null,
-//                        new Organization.Period(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
-//                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet"))
-//        ));
+        R1.addSection(SectionType.EXPERIENCE, new OrganizationSection(
+                new Organization("Organization11", "http://organization11.ru",
+                        new Organization.Period(2005, Month.JANUARY, "Автор проекта.", "Создание" +
+                                ", организация и проведение Java онлайн проектов и стажировок."),
+                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))
+        ));
+        R1.addSection(SectionType.EDUCATION, new OrganizationSection(
+                new Organization("Institute", null,
+                        new Organization.Period(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
+                        new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet"))
+        ));
 //
         //R2.addContact(ContactType.SKYPE, "skype2");
         //R2.addContact(ContactType.TELEFON, "22222");
@@ -176,6 +188,13 @@ public abstract class AbstractStorageTest {
 //        Assert.assertEquals("uuid2", storage.getAllSorted().get(0).getUuid());
 //    }
 
+    @Test
+    public void jsonTest() {
+        OrganizationSection organizationSection = (OrganizationSection) R1.getSections().get(SectionType.EXPERIENCE);
+        String orgJson = JsonParser.write(organizationSection, OrganizationSection.class);
+        OrganizationSection organizationSection1 = JsonParser.read(orgJson, OrganizationSection.class);
+        Assert.assertEquals(organizationSection, organizationSection1);
+    }
     private void assertSize(int expectedSize) {
         assertEquals(expectedSize, storage.size());
     }
