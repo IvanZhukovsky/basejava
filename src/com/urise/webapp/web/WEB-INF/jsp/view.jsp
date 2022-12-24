@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="com.urise.webapp.model.SectionType" %>
+<%@ page import="java.time.LocalDate" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -37,7 +38,7 @@
         || sectionEntry.getKey().equals(SectionType.QUALIFICATIONS)}">
             <h3><%=sectionEntry.getKey().getTitle()%></h3>
             <c:forEach var="content" items="${sectionEntry.getValue().getContent()}">
-                <p> ${content} </p>
+                <li> ${content} </li>
             </c:forEach>
         </c:when>
 
@@ -47,7 +48,7 @@
             <c:forEach var="organization" items="${sectionEntry.getValue().getOrganizations()}">
                 <h4>${organization.getHomePage().getName()}</h4>
                 <c:forEach var="period" items="${organization.getPeriods()}">
-                    <p> ${period.getBeginDate()} - ${period.getEndDate()}      ${period.getTitle()}</p>
+                    <p> ${period.getBeginDate()} - ${period.isEndAfterNow() ? "по наст.вр" : period.getEndDate()}      ${period.getTitle()}</p>
                     <p> ${period.getDescription()} </p>
                 </c:forEach>
             </c:forEach>

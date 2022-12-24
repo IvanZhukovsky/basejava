@@ -109,6 +109,14 @@ public class Organization implements Serializable {
             return endDate;
         }
 
+        public boolean isEndAfterNow(){
+            if (endDate.isAfter(LocalDate.now())) {
+                return true;
+            } else return false;
+        }
+
+
+
         public String getTitle() {
             return title;
         }
@@ -122,6 +130,7 @@ public class Organization implements Serializable {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Period period = (Period) o;
+
             return beginDate.equals(period.beginDate) && endDate.equals(period.endDate) && title.equals(period.title) && Objects.equals(description, period.description);
         }
 

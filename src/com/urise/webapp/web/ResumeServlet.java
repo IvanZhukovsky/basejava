@@ -89,7 +89,10 @@ public class ResumeServlet extends HttpServlet {
                         List<String> contentList = new ArrayList<>();
                         Scanner scanner = new Scanner(content);
                         while (scanner.hasNextLine()) {
-                            contentList.add(scanner.nextLine());
+                            String line = scanner.nextLine();
+                            if (line != null && line.trim().length() !=0 ) {
+                                contentList.add(line);
+                            }
                         }
                         r.addSection(type, new ListSection(contentList));
                 }
