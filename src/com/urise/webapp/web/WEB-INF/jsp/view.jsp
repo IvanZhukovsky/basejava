@@ -46,9 +46,16 @@
         || sectionEntry.getKey().equals(SectionType.EDUCATION)}">
             <h3><%=sectionEntry.getKey().getTitle()%></h3>
             <c:forEach var="organization" items="${sectionEntry.getValue().getOrganizations()}">
-                <h4>${organization.getHomePage().getName()}</h4>
+
+                <c:if test="${organization.getHomePage().getUrl() == null}">
+                    <h4>${organization.getHomePage().getName()}</h4>
+                </c:if>
+                <c:if test="${organization.getHomePage().getUrl() != null}">
+                    <h4><a href="${organization.getHomePage().getUrl()}">${organization.getHomePage().getName()}</a></h4>
+                </c:if>
                 <c:forEach var="period" items="${organization.getPeriods()}">
-                    <p> ${period.getBeginDate()} - ${period.isEndAfterNow() ? "по наст.вр" : period.getEndDate()}      ${period.getTitle()}</p>
+                    <p> ${period.getFormatBeginDate()} - ${period.isEndAfterNow() ? "по наст.вр" : period.getFormatEndDate()}
+                            ${period.getTitle()}</p>
                     <p> ${period.getDescription()} </p>
                 </c:forEach>
             </c:forEach>

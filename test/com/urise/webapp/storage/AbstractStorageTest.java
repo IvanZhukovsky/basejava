@@ -67,7 +67,7 @@ public abstract class AbstractStorageTest {
                         "Twilio, DuoSecurity, Google Authenticator, Jira, Zendesk."));
         R1.addSection(SectionType.QUALIFICATIONS, new ListSection("Java", "SQL", "JavaScript"));
         R1.addSection(SectionType.EXPERIENCE, new OrganizationSection(
-                new Organization("Organization11", "http://organization11.ru",
+                new Organization("Organization11", "https://yandex.ru",
                         new Organization.Period(2005, Month.JANUARY, "Автор проекта.", "Создание" +
                                 ", организация и проведение Java онлайн проектов и стажировок."),
                         new Organization.Period(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))

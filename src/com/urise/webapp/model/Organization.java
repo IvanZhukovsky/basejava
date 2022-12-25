@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -107,6 +108,14 @@ public class Organization implements Serializable {
 
         public LocalDate getEndDate() {
             return endDate;
+        }
+
+        public String getFormatBeginDate() {
+            return beginDate.format(DateTimeFormatter.ofPattern("MM/yyyy"));
+        }
+
+        public String getFormatEndDate() {
+            return endDate.format(DateTimeFormatter.ofPattern("MM/yyyy"));
         }
 
         public boolean isEndAfterNow(){
