@@ -61,10 +61,25 @@
                                       placeholder="Позиция">
                             </p>
                             <p>
-                                <input type="text" name="${sectionType} ${id} ${id2} beginDate" size="30" value="${period.getFormatBeginDate()}"
+
+                            <c:if test="${period.isBeginDefault()}">
+                                <input type="text" name="${sectionType} ${id} ${id2} beginDate" size="30"
                                        placeholder="Начало, ММ/ГГГГ">
-                                <input type="text" name="${sectionType} ${id} ${id2} endDate" size="30" value="${period.getFormatEndDate()}"
+                            </c:if>
+                            <c:if test="${!period.isBeginDefault()}">
+                                    <input type="text" name="${sectionType} ${id} ${id2} beginDate" size="30" value="${period.getFormatBeginDate()}"
+                                           placeholder="Начало, ММ/ГГГГ">
+                            </c:if>
+                            <c:if test="${period.isEndDefault()}">
+                                <input type="text" name="${sectionType} ${id} ${id2} endDate" size="30"
                                        placeholder="Конец, ММ\ГГГГ">
+                            </c:if>
+
+                            <c:if test="${!period.isEndDefault()}">
+                                <input type="text" name="${sectionType} ${id} ${id2} endDate" size="30" value="${period.getFormatEndDate()}"
+                                           placeholder="Конец, ММ\ГГГГ">
+                            </c:if>
+
                             </p>
                             <p>
                                 <input type="text" name="${sectionType} ${id} ${id2} description" size="60" value="${period.getDescription()}"
@@ -80,11 +95,8 @@
                 <c:otherwise>
                     <textarea type="text" name="${sectionType}" cols="50" rows="3">${resume.getSections().get(sectionType)}</textarea><br/>
                 </c:otherwise>
-
             </c:choose>
-
         </c:forEach>
-
         <hr>
 
         <button type="submit">Сохранить</button>

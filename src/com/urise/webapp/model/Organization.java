@@ -125,8 +125,14 @@ public class Organization implements Serializable {
             } else return false;
         }
 
-        public boolean isDefaultDates(){
-            if (endDate.isEqual(DEFAULT) || beginDate.isEqual(DEFAULT)) {
+        public boolean isBeginDefault(){
+            if (beginDate.isEqual(DEFAULT)) {
+                return true;
+            } else return false;
+        }
+
+        public boolean isEndDefault(){
+            if (endDate.isEqual(DEFAULT)) {
                 return true;
             } else return false;
         }

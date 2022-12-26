@@ -1,8 +1,10 @@
 package com.urise.webapp.web;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 import com.urise.webapp.Config;
 import com.urise.webapp.model.*;
 import com.urise.webapp.storage.Storage;
+import com.urise.webapp.util.DateUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -125,16 +127,12 @@ public class ResumeServlet extends HttpServlet {
                                         String begin = request.getParameter(type.name() + " "
                                                 + (i + 1) + " " + (j + 1) + " " + "beginDate");
 
-                                        int month = Integer.parseInt(begin.substring(0, 2));
-                                        int year = Integer.parseInt(begin.substring(3, 7));
-                                        LocalDate beginDate = LocalDate.of(year, month, 1);
+                                        LocalDate beginDate = parseDate(begin);
 
                                         String end = request.getParameter(type.name() + " "
                                                 + (i + 1) + " " + (j + 1) + " " + "endDate");
 
-                                        month = Integer.parseInt(end.substring(0, 2));
-                                        year = Integer.parseInt(end.substring(3, 7));
-                                        LocalDate endDate = LocalDate.of(year, month, 1);
+                                        LocalDate endDate = parseDate(end);
 
                                         String description = request.getParameter(type.name() + " "
                                                 + (i + 1) + " " + (j + 1) + " " + "description");
@@ -180,6 +178,28 @@ public class ResumeServlet extends HttpServlet {
             storage.update(r);
             response.sendRedirect("resume");
 
+        }
+        private LocalDate parseDate(String date) {
+
+        LocalDate localDate;
+        if (date.length() == 7) {
+            String monthStr = date.substring(0, 2);
+            String yearStr = date.substring(3, 7);
+            if (monthStr.chars().allMatch( Character::isDigit)
+                    && yearStr.chars().allMatch( Character::isDigit )) {
+                int month = Integer.parseInt(monthStr);
+                int year = Integer.parseInt(yearStr);
+                localDate = LocalDate.of(year, month, 1);
+            } else {
+                localDate = DateUtil.DEFAULT;
+            }
+        } else {
+            localDate = DateUtil.DEFAULT;
+        }
+
+
+
+        return localDate;
         }
     }
 
