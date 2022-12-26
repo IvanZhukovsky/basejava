@@ -53,7 +53,9 @@
                     <h4><a href="${organization.getHomePage().getUrl()}">${organization.getHomePage().getName()}</a></h4>
                 </c:if>
                 <c:forEach var="period" items="${organization.getPeriods()}">
-                    <p> ${period.getFormatBeginDate()} - ${period.isEndAfterNow() ? "по наст.вр" : period.getFormatEndDate()}
+                    <p> ${period.isBeginDefault() ? "неизвестно" : period.getFormatBeginDate()} -
+                            ${period.isEndAfterNow() ? "по наст.вр" : period.isEndDefault()
+                            ? "неизвестно" : period.getFormatEndDate()}
                             ${period.getTitle()}</p>
                     <p> ${period.getDescription()} </p>
                 </c:forEach>
