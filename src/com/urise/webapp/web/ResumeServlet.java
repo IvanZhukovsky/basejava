@@ -116,6 +116,10 @@ public class ResumeServlet extends HttpServlet {
                                 String name = request.getParameterValues(type.name())[i];
                                 String url = request.getParameterValues(type.name() + " " + "url")[i];
 
+                                if (url.trim().length() == 0) {
+                                    url = null;
+                                }
+
                                 List<Organization.Period> periods = new ArrayList<>();
 
                                 if (request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition") != null)

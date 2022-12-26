@@ -49,6 +49,7 @@
                 <c:if test="${organization.getHomePage().getUrl() == null}">
                     <h4>${organization.getHomePage().getName()}</h4>
                 </c:if>
+
                 <c:if test="${organization.getHomePage().getUrl() != null}">
                     <h4><a href="${organization.getHomePage().getUrl()}">${organization.getHomePage().getName()}</a></h4>
                 </c:if>

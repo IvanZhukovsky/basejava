@@ -51,7 +51,7 @@ public class Resume implements Comparable<Resume>, Serializable {
 
     public List<Organization> getDefaultListOrg() {
         List<Organization> list = new ArrayList<>();
-        list.add(new Organization("","",
+        list.add(new Organization("",null,
                 new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", "")));
         return list;
     }
