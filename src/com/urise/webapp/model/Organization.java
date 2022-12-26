@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.urise.webapp.util.DateUtil.DEFAULT;
 import static com.urise.webapp.util.DateUtil.NOW;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Organization implements Serializable {
@@ -120,6 +121,12 @@ public class Organization implements Serializable {
 
         public boolean isEndAfterNow(){
             if (endDate.isAfter(LocalDate.now())) {
+                return true;
+            } else return false;
+        }
+
+        public boolean isDefaultDates(){
+            if (endDate.isEqual(DEFAULT) || beginDate.isEqual(DEFAULT)) {
                 return true;
             } else return false;
         }

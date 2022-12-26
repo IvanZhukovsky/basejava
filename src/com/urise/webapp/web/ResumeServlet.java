@@ -8,6 +8,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,13 +39,13 @@ public class ResumeServlet extends HttpServlet {
         switch (action) {
             case "delete":
                 storage.delete(uuid);
-                response.sendRedirect ("resume");
+                response.sendRedirect("resume");
                 return;
             case "view":
             case "edit":
                 if (uuid.equals("new")) {
                     r = new Resume();
-                    storage.save(r);
+                    //storage.save(r);
                 } else {
                     r = storage.get(uuid);
                 }
@@ -64,9 +66,16 @@ public class ResumeServlet extends HttpServlet {
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
 
-        Resume r = storage.get(uuid);
+        Resume r;
+        try {
+            r = storage.get(uuid);
+        } catch (Exception e) {
+            r = new Resume();
+            storage.save(r);
+        }
+
         r.setFullName(fullName);
-        for (ContactType type: ContactType.values()) {
+        for (ContactType type : ContactType.values()) {
             String value = request.getParameter(type.name());
             if (value != null && value.trim().length() != 0) {
                 r.addContact(type, value);
@@ -75,7 +84,7 @@ public class ResumeServlet extends HttpServlet {
             }
         }
 
-        for (SectionType type: SectionType.values()) {
+        for (SectionType type : SectionType.values()) {
             String content = request.getParameter(type.name());
 
             if (content != null && content.trim().length() != 0) {
@@ -90,16 +99,87 @@ public class ResumeServlet extends HttpServlet {
                         Scanner scanner = new Scanner(content);
                         while (scanner.hasNextLine()) {
                             String line = scanner.nextLine();
-                            if (line != null && line.trim().length() !=0 ) {
+                            if (line != null && line.trim().length() != 0) {
                                 contentList.add(line);
                             }
                         }
                         r.addSection(type, new ListSection(contentList));
+                        break;
+                    case EXPERIENCE:
+                    case EDUCATION:
+
+                        List<Organization> organizations = new ArrayList<>();
+                            for (int i = 0; i < request.getParameterValues(type.name()).length; i++) {
+
+                                String name = request.getParameterValues(type.name())[i];
+                                String url = request.getParameterValues(type.name() + " " + "url")[i];
+
+                                List<Organization.Period> periods = new ArrayList<>();
+
+                                if (request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition") != null)
+
+                                    for (int j = 0; j < request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition").length; j++) {
+
+                                        String period = request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition")[j];
+
+                                        String begin = request.getParameter(type.name() + " "
+                                                + (i + 1) + " " + (j + 1) + " " + "beginDate");
+
+                                        int month = Integer.parseInt(begin.substring(0, 2));
+                                        int year = Integer.parseInt(begin.substring(3, 7));
+                                        LocalDate beginDate = LocalDate.of(year, month, 1);
+
+                                        String end = request.getParameter(type.name() + " "
+                                                + (i + 1) + " " + (j + 1) + " " + "endDate");
+
+                                        month = Integer.parseInt(end.substring(0, 2));
+                                        year = Integer.parseInt(end.substring(3, 7));
+                                        LocalDate endDate = LocalDate.of(year, month, 1);
+
+                                        String description = request.getParameter(type.name() + " "
+                                                + (i + 1) + " " + (j + 1) + " " + "description");
+                                        periods.add(new Organization.Period(beginDate, endDate, period, description));
+                                    }
+
+                                Organization theOrg = new Organization(new Link(name, url), periods);
+                                organizations.add(theOrg);
+                            }
+                            r.addSection(type, new OrganizationSection(organizations));
+
+                        }
                 }
             }
-        }
-        storage.update(r);
-        response.sendRedirect("resume");
 
+//        String name = request.getParameterValues(SectionType.EXPERIENCE.name())[0];
+//
+//        String url = request.getParameterValues(name + " " + "url")[0];
+//
+//        String period = request.getParameterValues(name + " " + "pozition")[0];
+//
+//        String begin = request.getParameter(name + " " + period + " " + "beginDate");
+//
+//        int month = Integer.parseInt(begin.substring(0, 2));
+//        int year = Integer.parseInt(begin.substring(3, 7));
+//
+//        LocalDate beginDate =  LocalDate.of(year, month, 1);
+//
+//        String description = request.getParameter(name + " " + period + " " + "description");
+//
+//        r.setFullName(description);
+
+//        String name = "ggggg";
+//        List<Organization> organizations = new ArrayList<>();
+//        Organization.Period period = new Organization.Period();
+//        Organization.Period[] periods = new Organization.Period[2];
+//        periods[0] = period;
+//        Organization organization = new Organization(new Link(name, "ya.ru"), Arrays.asList(periods));
+//        organizations.add(organization);
+//        r.addSection(SectionType.EXPERIENCE, new OrganizationSection(organizations));
+
+
+            storage.update(r);
+            response.sendRedirect("resume");
+
+        }
     }
-}
+

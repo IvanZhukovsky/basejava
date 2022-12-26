@@ -11,6 +11,7 @@
     <body>
         <jsp:include page="fragments/header.jsp"/>
         <section>
+            <button type="button" onclick= "window.location.href = 'resume?uuid=${"new"}&action=edit'">Добавить новое резюме</button>
             <table border="1" cellpadding="g" cellspacing="0">
                 <tr>
                     <th>Имя</th>
@@ -28,7 +29,6 @@
                 </tr>
             </c:forEach>
         </table>
-        <button type="button" onclick= "window.location.href = 'resume?uuid=${"new"}&action=edit'">Добавить новое резюме</button>
 
     </section>
     <jsp:include page="fragments/footer.jsp"/>

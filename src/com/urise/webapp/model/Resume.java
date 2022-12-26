@@ -3,11 +3,15 @@ package com.urise.webapp.model;
 
 
 
+import com.sun.org.apache.xpath.internal.operations.Or;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.time.Month;
 import java.util.*;
+import com.urise.webapp.util.DateUtil;
 
 /**
  * Initial resume class
@@ -43,6 +47,13 @@ public class Resume implements Comparable<Resume>, Serializable {
 
     public String getFullName() {
         return fullName;
+    }
+
+    public List<Organization> getDefaultListOrg() {
+        List<Organization> list = new ArrayList<>();
+        list.add(new Organization("","",
+                new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", "")));
+        return list;
     }
 
     public Map<ContactType, String> getContacts() {
