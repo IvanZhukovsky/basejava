@@ -23,6 +23,16 @@ public class OrganizationSection extends AbstractSection {
         return organizations;
     }
 
+    public void deleteOrganization(String name) {
+        for (int i = 0; i < getOrganizations().size(); i++) {
+            Link homePage = getOrganizations().get(i).getHomePage();
+            if (homePage.getName().equals(name)) {
+                getOrganizations().remove(i);
+                break;
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

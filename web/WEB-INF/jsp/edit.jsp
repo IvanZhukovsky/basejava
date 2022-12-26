@@ -15,8 +15,11 @@
 </head>
 <body>
 <jsp:include page="fragments/header.jsp"/>
+
+
 <section>
     <form method="post" action="resume" enctype="application/x-www-form-urlencoded">
+
         <input type="hidden" name="uuid" value="${resume.uuid}">
         <dl>
             <dt>Имя:</dt>
@@ -42,6 +45,8 @@
                 <c:when test="${sectionType.equals(SectionType.EXPERIENCE)
         || sectionType.equals(SectionType.EDUCATION)}">
 
+                    <button type="button" onclick= "window.location.href = 'resume?uuid=${resume.uuid}&action=addExp'">Добавить организацию</button>
+
                     <c:forEach var="organization" items="${
                     resume.getSections().get(sectionType).getOrganizations() != null ?
                     resume.getSections().get(sectionType).getOrganizations() : resume.getDefaultListOrg()}">
@@ -52,6 +57,9 @@
                                placeholder="Название организации">
                         <input type="text" name="${sectionType} url" size="30" value="${organization.getHomePage().getUrl()}"
                                placeholder="Сайт организации">
+                        <button type="button" onclick= "window.location.href =
+                                'resume?uuid=${resume.uuid}&sectionType=${sectionType}&organization=${organization.getHomePage().getName()}&action=delOrg'">Удалить организацию</button>
+
                         <c:forEach var="period" items="${organization.getPeriods()}">
 
                             <c:set var="id2" scope="session" value="${id2 = id2 + 1}" />
@@ -101,6 +109,7 @@
 
         <button type="submit">Сохранить</button>
         <button type="reset" onclick="window.history.back()">Отменить</button>
+
     </form>
 
 </section>

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.IntPredicate;
 
 public class ResumeServlet extends HttpServlet {
 
@@ -32,6 +33,10 @@ public class ResumeServlet extends HttpServlet {
 
         String uuid = request.getParameter("uuid");
         String action = request.getParameter("action");
+        String sectionType = request.getParameter("sectionType");
+        String organization = request.getParameter("organization");
+
+
         if (action == null) {
             request.setAttribute("resumes", storage.getAllSorted());
             request.getRequestDispatcher("/WEB-INF/jsp/list.jsp").forward(request, response);
@@ -45,6 +50,31 @@ public class ResumeServlet extends HttpServlet {
                 return;
             case "view":
             case "edit":
+                if (uuid.equals("new")) {
+                    r = new Resume();
+                    //storage.save(r);
+                } else {
+                    r = storage.get(uuid);
+                }
+                break;
+            case "addExp":
+                if (uuid.equals("new")) {
+                    r = new Resume();
+                    //storage.save(r);
+                } else {
+                    r = storage.get(uuid);
+                }
+                OrganizationSection organizationSection = (OrganizationSection) r.getSection(SectionType.EXPERIENCE);
+                organizationSection.getOrganizations().add(new Organization("", null,
+                        new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", "")));
+                break;
+            case "delOrg":
+                    r = storage.get(uuid);
+                    OrganizationSection organizationSection1 = (OrganizationSection) r.getSection(SectionType.valueOf(sectionType));
+                    organizationSection1.deleteOrganization(organization);
+                break;
+
+            case "addEduc":
                 if (uuid.equals("new")) {
                     r = new Resume();
                     //storage.save(r);
@@ -77,6 +107,7 @@ public class ResumeServlet extends HttpServlet {
         }
 
         r.setFullName(fullName);
+
         for (ContactType type : ContactType.values()) {
             String value = request.getParameter(type.name());
             if (value != null && value.trim().length() != 0) {
@@ -152,33 +183,6 @@ public class ResumeServlet extends HttpServlet {
                 }
             }
 
-//        String name = request.getParameterValues(SectionType.EXPERIENCE.name())[0];
-//
-//        String url = request.getParameterValues(name + " " + "url")[0];
-//
-//        String period = request.getParameterValues(name + " " + "pozition")[0];
-//
-//        String begin = request.getParameter(name + " " + period + " " + "beginDate");
-//
-//        int month = Integer.parseInt(begin.substring(0, 2));
-//        int year = Integer.parseInt(begin.substring(3, 7));
-//
-//        LocalDate beginDate =  LocalDate.of(year, month, 1);
-//
-//        String description = request.getParameter(name + " " + period + " " + "description");
-//
-//        r.setFullName(description);
-
-//        String name = "ggggg";
-//        List<Organization> organizations = new ArrayList<>();
-//        Organization.Period period = new Organization.Period();
-//        Organization.Period[] periods = new Organization.Period[2];
-//        periods[0] = period;
-//        Organization organization = new Organization(new Link(name, "ya.ru"), Arrays.asList(periods));
-//        organizations.add(organization);
-//        r.addSection(SectionType.EXPERIENCE, new OrganizationSection(organizations));
-
-
             storage.update(r);
             response.sendRedirect("resume");
 
@@ -189,7 +193,7 @@ public class ResumeServlet extends HttpServlet {
         if (date.length() == 7) {
             String monthStr = date.substring(0, 2);
             String yearStr = date.substring(3, 7);
-            if (monthStr.chars().allMatch( Character::isDigit)
+            if (monthStr.chars().allMatch(Character::isDigit)
                     && yearStr.chars().allMatch( Character::isDigit )) {
                 int month = Integer.parseInt(monthStr);
                 int year = Integer.parseInt(yearStr);
