@@ -1,8 +1,6 @@
 package com.urise.webapp.model;
 
 
-
-
 import com.sun.org.apache.xpath.internal.operations.Or;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.time.Month;
 import java.util.*;
+
 import com.urise.webapp.util.DateUtil;
 
 /**
@@ -21,8 +20,8 @@ import com.urise.webapp.util.DateUtil;
 public class Resume implements Comparable<Resume>, Serializable {
     private static final long serialVersionUID = 1L;
     // Unique identifier
-    private  String uuid;
-    private  String fullName;
+    private String uuid;
+    private String fullName;
     private final Map<ContactType, String> contacts = new EnumMap<>(ContactType.class);
     private final Map<SectionType, AbstractSection> sections = new EnumMap<>(SectionType.class);
 
@@ -51,9 +50,32 @@ public class Resume implements Comparable<Resume>, Serializable {
 
     public List<Organization> getDefaultListOrg() {
         List<Organization> list = new ArrayList<>();
-        list.add(new Organization("",null,
+        list.add(new Organization("", null,
                 new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", "")));
         return list;
+    }
+
+    public void addDefaultOrg(SectionType sectionType) {
+        if (sections.get(sectionType) != null) {
+            OrganizationSection organizationSection = (OrganizationSection) sections.get(sectionType);
+            boolean isExist = false;
+            for (Organization organization : organizationSection.getOrganizations()) {
+                for (Organization.Period period: organization.getPeriods()) {
+                    if (period.getTitle().trim().length() == 0) isExist = true;
+                }
+                if (!isExist) {
+                    organization.getPeriods().add(new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", ""));
+                }
+            }
+            for (Organization organization : organizationSection.getOrganizations()) {
+                if (organization.getHomePage().getName().equals("")) {
+                    return;
+                }
+            }
+            organizationSection.getOrganizations().add(new Organization("", null,
+                    new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", "")));
+        }
+
     }
 
     public Map<ContactType, String> getContacts() {
@@ -79,14 +101,7 @@ public class Resume implements Comparable<Resume>, Serializable {
     public void addSection(SectionType sectionType, AbstractSection abstractSection) {
         sections.put(sectionType, abstractSection);
     }
-    public AbstractSection getSection(SectionType sectionType) {
-        AbstractSection section = getSections().get(sectionType);
-        return section;
-    }
 
-    //public AbstractSection getSection(SectionType sectionType) {
-//        return sections.get(sectionType);
-//    }
 
     @Override
     public boolean equals(Object o) {

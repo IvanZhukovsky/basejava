@@ -57,32 +57,6 @@ public class ResumeServlet extends HttpServlet {
                     r = storage.get(uuid);
                 }
                 break;
-            case "addExp":
-                if (uuid.equals("new")) {
-                    r = new Resume();
-                    //storage.save(r);
-                } else {
-                    r = storage.get(uuid);
-                }
-                OrganizationSection organizationSection = (OrganizationSection) r.getSection(SectionType.EXPERIENCE);
-                organizationSection.getOrganizations().add(new Organization("", null,
-                        new Organization.Period(DateUtil.DEFAULT, DateUtil.DEFAULT, "", "")));
-                break;
-            case "delOrg":
-                    r = storage.get(uuid);
-                    OrganizationSection organizationSection1 = (OrganizationSection) r.getSection(SectionType.valueOf(sectionType));
-                    organizationSection1.deleteOrganization(organization);
-                break;
-
-            case "addEduc":
-                if (uuid.equals("new")) {
-                    r = new Resume();
-                    //storage.save(r);
-                } else {
-                    r = storage.get(uuid);
-                }
-
-                break;
             default:
                 throw new IllegalArgumentException("Action " + action + " is illegal");
         }
@@ -100,7 +74,10 @@ public class ResumeServlet extends HttpServlet {
 
         Resume r;
         try {
-            r = storage.get(uuid);
+            //r = storage.get(uuid);
+            storage.delete(uuid);
+            r = new Resume(uuid);
+            storage.save(r);
         } catch (Exception e) {
             r = new Resume();
             storage.save(r);
@@ -142,22 +119,26 @@ public class ResumeServlet extends HttpServlet {
                     case EDUCATION:
 
                         List<Organization> organizations = new ArrayList<>();
-                            for (int i = 0; i < request.getParameterValues(type.name()).length; i++) {
+                        for (int i = 0; i < request.getParameterValues(type.name()).length; i++) {
 
-                                String name = request.getParameterValues(type.name())[i];
-                                String url = request.getParameterValues(type.name() + " " + "url")[i];
+                            String name = request.getParameterValues(type.name())[i];
+                            String url = request.getParameterValues(type.name() + " " + "url")[i];
 
-                                if (url.trim().length() == 0) {
-                                    url = null;
-                                }
+                            if (url.trim().length() == 0) {
+                                url = null;
+                            }
 
-                                List<Organization.Period> periods = new ArrayList<>();
+                            List<Organization.Period> periods = new ArrayList<>();
 
-                                if (request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition") != null)
+                            if (request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition") != null && name.trim().length() != 0) {
 
-                                    for (int j = 0; j < request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition").length; j++) {
 
-                                        String period = request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition")[j];
+                                for (int j = 0; j < request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition").length; j++) {
+
+
+                                    String period = request.getParameterValues(type.name() + " " + (i + 1) + " " + "pozition")[j];
+
+                                    if (period.trim().length() != 0) {
 
                                         String begin = request.getParameter(type.name() + " "
                                                 + (i + 1) + " " + (j + 1) + " " + "beginDate");
@@ -173,28 +154,34 @@ public class ResumeServlet extends HttpServlet {
                                                 + (i + 1) + " " + (j + 1) + " " + "description");
                                         periods.add(new Organization.Period(beginDate, endDate, period, description));
                                     }
+                                }
 
                                 Organization theOrg = new Organization(new Link(name, url), periods);
                                 organizations.add(theOrg);
+                                r.addSection(type, new OrganizationSection(organizations));
+
                             }
-                            r.addSection(type, new OrganizationSection(organizations));
 
                         }
+//                        r.getSections().remove(type);
+//                        r.addSection(type, new OrganizationSection(organizations));
                 }
             }
-
-            storage.update(r);
-            response.sendRedirect("resume");
-
         }
-        private LocalDate parseDate(String date) {
+
+        storage.update(r);
+        response.sendRedirect("resume");
+
+    }
+
+    private LocalDate parseDate(String date) {
 
         LocalDate localDate;
         if (date.length() == 7) {
             String monthStr = date.substring(0, 2);
             String yearStr = date.substring(3, 7);
             if (monthStr.chars().allMatch(Character::isDigit)
-                    && yearStr.chars().allMatch( Character::isDigit )) {
+                    && yearStr.chars().allMatch(Character::isDigit)) {
                 int month = Integer.parseInt(monthStr);
                 int year = Integer.parseInt(yearStr);
                 localDate = LocalDate.of(year, month, 1);
@@ -204,10 +191,7 @@ public class ResumeServlet extends HttpServlet {
         } else {
             localDate = DateUtil.DEFAULT;
         }
-
-
-
         return localDate;
-        }
     }
+}
 

@@ -45,11 +45,11 @@
                 <c:when test="${sectionType.equals(SectionType.EXPERIENCE)
         || sectionType.equals(SectionType.EDUCATION)}">
 
-                    <button type="button" onclick= "window.location.href = 'resume?uuid=${resume.uuid}&action=addExp'">Добавить организацию</button>
-
+                    <%resume.addDefaultOrg(sectionType);%>
                     <c:forEach var="organization" items="${
                     resume.getSections().get(sectionType).getOrganizations() != null ?
                     resume.getSections().get(sectionType).getOrganizations() : resume.getDefaultListOrg()}">
+<%--            <c:forEach var="organization" items="${resume.getSections().get(sectionType).getOrganizations()}">--%>
 
                         <c:set var="id" scope="session" value="${id = id + 1}" />
 
@@ -57,9 +57,8 @@
                                placeholder="Название организации">
                         <input type="text" name="${sectionType} url" size="30" value="${organization.getHomePage().getUrl()}"
                                placeholder="Сайт организации">
-                        <button type="button" onclick= "window.location.href =
-                                'resume?uuid=${resume.uuid}&sectionType=${sectionType}&organization=${organization.getHomePage().getName()}&action=delOrg'">Удалить организацию</button>
 
+<%--                        <%resume.addDefaultPeriods(sectionType);%>--%>
                         <c:forEach var="period" items="${organization.getPeriods()}">
 
                             <c:set var="id2" scope="session" value="${id2 = id2 + 1}" />

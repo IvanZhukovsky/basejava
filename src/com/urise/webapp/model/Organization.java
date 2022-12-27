@@ -103,6 +103,8 @@ public class Organization implements Serializable {
             this.description = description;
         }
 
+
+
         public LocalDate getBeginDate() {
             return beginDate;
         }
@@ -118,6 +120,7 @@ public class Organization implements Serializable {
         public String getFormatEndDate() {
             return endDate.format(DateTimeFormatter.ofPattern("MM/yyyy"));
         }
+
 
         public boolean isEndAfterNow(){
             if (endDate.isAfter(LocalDate.now())) {
